@@ -28,7 +28,6 @@
   "gitlens.showWelcomeOnInstall": false,
   "html.format.indentHandlebars": true,
   "html.format.indentInnerHtml": true,
-  "keyboard.touchbar.enabled": false,
   "security.workspace.trust.enabled": false,
   "terminal.integrated.fontSize": 15,
   "window.autoDetectColorScheme": true,
@@ -44,32 +43,6 @@
   "php.suggest.basic": false,
   "css.validate": false, // For stylelint
   "scss.validate": false, // For stylelint
-  "xml.validation.enabled": false,
-  "xml.format.preserveAttributeLineBreaks": true,
-  "xml.format.spaceBeforeEmptyCloseTag": false,
-  "xml.format.preserveSpace": [
-    "xsl:text",
-    "xsl:comment",
-    "xsl:processing-instruction",
-    "literallayout",
-    "programlisting",
-    "screen",
-    "synopsis",
-    "pre",
-    "xd:pre",
-    "argument"
-  ],
-  "xml.format.maxLineWidth": 120,
-  "css.enabledLanguages": [
-    "html",
-    "php",
-    "astro",
-    "vue",
-    "njk",
-    "twig",
-    "nunjucks",
-    "liquid"
-  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.renderWhitespace": "trailing",
@@ -111,7 +84,6 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
-  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "gitlens.showWhatsNewAfterUpgrades": false,
   "workbench.colorTheme": "Atom One Dark"
 }
