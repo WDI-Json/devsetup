@@ -1,6 +1,5 @@
 {
   "diffEditor.ignoreTrimWhitespace": false,
-  "editor.fontFamily": "SF Mono, Menlo, Monaco, 'Courier New', monospace",
   "editor.acceptSuggestionOnCommitCharacter": false,
   "editor.accessibilitySupport": "off",
   "editor.fontSize": 16,
@@ -10,10 +9,7 @@
   "editor.wordWrap": "on",
   "emmet.includeLanguages": {
     "vue": "html",
-    "njk": "html",
     "twig": "html",
-    "nunjucks": "html",
-    "liquid": "html",
     "postcss": "css"
   },
   "emmet.syntaxProfiles": { "postcss": "css" },
@@ -33,22 +29,14 @@
   "html.format.indentHandlebars": true,
   "html.format.indentInnerHtml": true,
   "keyboard.touchbar.enabled": false,
-  "markdown.extension.italic.indicator": "_",
-  "markdown.extension.toc.levels": "2..6",
-  "markdown.extension.toc.updateOnSave": false,
-  "presentationMode.zoomLevel": 3,
   "security.workspace.trust.enabled": false,
   "terminal.integrated.fontSize": 15,
   "window.autoDetectColorScheme": true,
   "window.commandCenter": true,
   "workbench.enableExperiments": false,
   "workbench.layoutControl.enabled": false,
-  "workbench.iconTheme": "bearded-icons",
-  "workbench.colorTheme": "GitHub Dark Default",
-  "workbench.preferredDarkColorTheme": "GitHub Dark Default",
-  "workbench.preferredHighContrastColorTheme": "GitHub Dark High Contrast",
-  "workbench.preferredHighContrastLightColorTheme": "GitHub Light High Contrast",
-  "workbench.preferredLightColorTheme": "GitHub Light Default",
+  "workbench.iconTheme": "vscode-great-icons",
+  "workbench.colorTheme": "Atom One Dark",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
   "workbench.sideBar.location": "right",
   "workbench.tips.enabled": false,
@@ -83,24 +71,14 @@
     "nunjucks",
     "liquid"
   ],
-  "cssvar.files": ["./node_modules/fylgja/fylgja-tokens.css"],
-  "cssvar.ignore": [],
-  "somesass.suggestFromUseOnly": true,
-  "somesass.scannerExclude": [".git/**", "./node_modules/**!(@fylgja)"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.renderWhitespace": "trailing",
-  "[html][php][njk][svg][less]": {
-    "editor.formatOnSave": false
-  },
-  "[html][php][njk][xml]": {
+  "[html][php][xml]": {
     "editor.linkedEditing": true
   },
   "[xml][csv][yaml][plaintext]": {
     "editor.wordWrap": "off"
-  },
-  "[njk]": {
-    "editor.defaultFormatter": "eseom.nunjucks-template"
   },
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
@@ -118,19 +96,22 @@
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
   },
-  // User specific settings
-  "terminal.integrated.env.osx": {
-    "FIG_NEW_SESSION": "1"
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
   },
-  "settingsSync.ignoredSettings": ["remote.SSH.configFile"],
-  "remote.SSH.configFile": "/Users/grimlink/.ssh/config-mooore",
-  "git.confirmSync": false,
-  "redhat.telemetry.enabled": false,
-  "cSpell.showStatus": false,
-  "cSpell.suggestionMenuType": "quickFix",
-  "cSpell.allowCompoundWords": true,
-  "cSpell.userWords": ["configurator"],
-  "window.zoomLevel": 0,
-  "color-highlight.markerType": "dot-before",
-  "color-highlight.markRuler": false
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left"
+  },
+  "settingsSync.ignoredSettings": ["-php.validate.executablePath"],
+  "php.validate.executablePath": "/opt/homebrew/bin/php",
+  "security.workspace.trust.untrustedFiles": "open",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+  "gitlens.showWhatsNewAfterUpgrades": false
 }
