@@ -36,7 +36,6 @@
   "workbench.enableExperiments": false,
   "workbench.layoutControl.enabled": false,
   "workbench.iconTheme": "vscode-great-icons",
-  "workbench.colorTheme": "Atom One Dark",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
   "workbench.sideBar.location": "right",
   "workbench.tips.enabled": false,
@@ -113,5 +112,6 @@
     "**/.factorypath": true
   },
   "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
-  "gitlens.showWhatsNewAfterUpgrades": false
+  "gitlens.showWhatsNewAfterUpgrades": false,
+  "workbench.colorTheme": "Atom One Dark"
 }
