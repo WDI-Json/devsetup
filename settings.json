@@ -85,5 +85,6 @@
     "**/.factorypath": true
   },
   "gitlens.showWhatsNewAfterUpgrades": false,
-  "workbench.colorTheme": "Atom One Dark"
+  "workbench.colorTheme": "Atom One Dark",
+  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace"
 }
