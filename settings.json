@@ -8,6 +8,7 @@
   "editor.quickSuggestionsDelay": 30,
   "editor.wordWrap": "on",
   "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
     "vue": "html",
     "twig": "html",
     "postcss": "css"
@@ -75,8 +76,6 @@
     "default": "right",
     "jupyter-notebook": "left"
   },
-  "settingsSync.ignoredSettings": ["-php.validate.executablePath"],
-  "php.validate.executablePath": "/opt/homebrew/bin/php",
   "security.workspace.trust.untrustedFiles": "open",
   "files.exclude": {
     "**/.classpath": true,
@@ -86,5 +85,7 @@
   },
   "gitlens.showWhatsNewAfterUpgrades": false,
   "workbench.colorTheme": "Atom One Dark",
-  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace"
+  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace", //after install of fonts. Windows only!
+  "prettier.semi": false,
+  "javascript.format.semicolons": "remove",
 }
