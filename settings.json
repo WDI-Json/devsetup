@@ -7,6 +7,11 @@
   "editor.minimap.enabled": false,
   "editor.quickSuggestionsDelay": 30,
   "editor.wordWrap": "on",
+  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace", //after install of fonts. Windows only!
+  "editor.formatOnPaste": false,
+  "prettier.semi": false,
+  "prettier.singleQuote": true,
+  "prettier.arrowParens": "always",
   "emmet.includeLanguages": {
     "javascript": "javascriptreact",
     "vue": "html",
@@ -41,33 +46,16 @@
   "workbench.tips.enabled": false,
   "workbench.tree.renderIndentGuides": "none",
   "zenMode.fullScreen": false,
-  "php.suggest.basic": false,
   "css.validate": false, // For stylelint
   "scss.validate": false, // For stylelint
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.renderWhitespace": "trailing",
-  "[html][php][xml]": {
-    "editor.linkedEditing": true
-  },
   "[xml][csv][yaml][plaintext]": {
     "editor.wordWrap": "off"
   },
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
-  },
-  "[php]": {
-    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
-  },
-  "[xml]": {
-    "editor.defaultFormatter": "redhat.vscode-xml",
-    "files.insertFinalNewline": true
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
-  },
-  "[svg]": {
-    "editor.defaultFormatter": "jock.svg"
   },
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
@@ -85,7 +73,5 @@
   },
   "gitlens.showWhatsNewAfterUpgrades": false,
   "workbench.colorTheme": "Atom One Dark",
-  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace", //after install of fonts. Windows only!
-  "prettier.semi": false,
-  "javascript.format.semicolons": "remove",
+  "javascript.format.semicolons": "remove"
 }
