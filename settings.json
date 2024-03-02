@@ -7,24 +7,26 @@
   "editor.minimap.enabled": false,
   "editor.quickSuggestionsDelay": 30,
   "editor.wordWrap": "on",
-  "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace", //after install of fonts. Windows only!
-  "editor.formatOnPaste": false,
-  "prettier.semi": false,
-  "prettier.singleQuote": true,
-  "prettier.arrowParens": "always",
   "emmet.includeLanguages": {
     "javascript": "javascriptreact",
     "vue": "html",
     "twig": "html",
-    "postcss": "css"
+    "postcss": "css",
+    "elixir": "html",
+    "phoenix-heex": "html"
   },
+  "emmet.triggerExpansionOnTab": true,
   "emmet.syntaxProfiles": { "postcss": "css" },
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "explorer.openEditors.visible": 0,
   "explorer.decorations.colors": false,
   "extensions.ignoreRecommendations": true,
-  "files.associations": { "*.twig": "html", ".gitmodules": "properties" },
+  "files.associations": {
+    "*.twig": "html",
+    ".gitmodules": "properties",
+    "*.heex": "phoenix-heex"
+  },
   "files.autoSave": "onWindowChange",
   "git.allowForcePush": true,
   "git.allowNoVerifyCommit": true,
@@ -34,13 +36,15 @@
   "gitlens.showWelcomeOnInstall": false,
   "html.format.indentHandlebars": true,
   "html.format.indentInnerHtml": true,
+  "keyboard.touchbar.enabled": false,
   "security.workspace.trust.enabled": false,
   "terminal.integrated.fontSize": 15,
   "window.autoDetectColorScheme": true,
   "window.commandCenter": true,
   "workbench.enableExperiments": false,
   "workbench.layoutControl.enabled": false,
-  "workbench.iconTheme": "vscode-great-icons",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Material Theme",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
   "workbench.sideBar.location": "right",
   "workbench.tips.enabled": false,
@@ -48,14 +52,42 @@
   "zenMode.fullScreen": false,
   "css.validate": false, // For stylelint
   "scss.validate": false, // For stylelint
+  "xml.validation.enabled": false,
+  "xml.format.preserveAttributeLineBreaks": true,
+  "xml.format.spaceBeforeEmptyCloseTag": false,
+  "xml.format.preserveSpace": [
+    "xsl:text",
+    "xsl:comment",
+    "xsl:processing-instruction",
+    "literallayout",
+    "programlisting",
+    "screen",
+    "synopsis",
+    "pre",
+    "xd:pre",
+    "argument"
+  ],
+  "xml.format.maxLineWidth": 120,
+  "css.enabledLanguages": [
+    "html",
+    "astro",
+    "vue",
+    "njk",
+    "twig",
+    "nunjucks",
+    "liquid"
+  ],
+  "prettier.semi": false,
+  "javascript.format.semicolons": "remove",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.renderWhitespace": "trailing",
   "[xml][csv][yaml][plaintext]": {
     "editor.wordWrap": "off"
   },
-  "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml",
+    "files.insertFinalNewline": true
   },
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
@@ -71,7 +103,22 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
+  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "gitlens.showWhatsNewAfterUpgrades": false,
-  "workbench.colorTheme": "Atom One Dark",
-  "javascript.format.semicolons": "remove"
+  "git.enableSmartCommit": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "redhat.telemetry.enabled": true,
+  "playwright.reuseBrowser": false,
+  "elixirLS.suggestSpecs": false,
+  "elixirLS.dialyzerEnabled": true,
+  "elixirLS.signatureAfterComplete": false,
+  "elixirLS.fetchDeps": false,
+  "[elixir]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+  },
+  "[phoenix-heex]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+  }
 }

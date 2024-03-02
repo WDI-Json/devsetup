@@ -1,0 +1,33 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+  {
+    "key": "cmd+k",
+    "command": "-git.commitAll",
+    "when": "!inDebugMode && !terminalFocus"
+  },
+  {
+    "key": "ctrl+t a",
+    "command": "workbench.action.tasks.runTask",
+    "args": "test all"
+  },
+  {
+    "key": "ctrl+t f",
+    "command": "workbench.action.tasks.runTask",
+    "args": "test current file"
+  },
+  {
+    "key": "ctrl+t l",
+    "command": "workbench.action.tasks.runTask",
+    "args": "test current line"
+  },
+  {
+    "key": "ctrl+t d",
+    "command": "workbench.action.tasks.runTask",
+    "args": "debug current line"
+  },
+  {
+    "key": "shift+cmd+,",
+    "command": "erb.toggleTags",
+    "when": "editorLangId == phoenix-heex or elixir"
+  }
+]

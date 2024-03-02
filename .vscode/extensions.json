@@ -25,7 +25,10 @@
     "akamud.vscode-theme-onedark",
     //BDD Specific
     "alexkrechik.cucumberautocomplete",
-    "blodwynn.featurehighlight"
+    "blodwynn.featurehighlight",
+    //Elixir specific
+    "JakeBecker.elixir-ls",
+    "phoenixframework.phoenix"
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []
