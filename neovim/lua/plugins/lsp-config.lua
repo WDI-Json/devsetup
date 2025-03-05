@@ -20,10 +20,53 @@ return {
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
       local lspconfig = require("lspconfig")
+
+      -- Ruby LSP
       lspconfig.ruby_lsp.setup({
-        capabilities = capabilities
+        capabilities = capabilities,
       })
 
+      -- Bash Language Server
+      lspconfig.bashls.setup({
+        capabilities = capabilities,
+      })
+
+      -- Groovy Language Server
+      lspconfig.groovyls.setup({
+        capabilities = capabilities,
+      })
+
+      -- Lua Language Server (LuaLS)
+      lspconfig.lua_ls.setup({
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            diagnostics = {
+              globals = { 'vim' },
+            },
+            workspace = {
+              library = vim.api.nvim_get_runtime_file("", true),
+            },
+            telemetry = {
+              enable = false,
+            },
+          },
+        },
+      })
+
+      -- YAML Language Server
+      lspconfig.yamlls.setup({
+        capabilities = capabilities,
+        settings = {
+          yaml = {
+            keyOrdering = false,
+            schemas = {},
+            validate = true,
+          },
+        },
+      })
+
+      -- Keymaps for LSP
       vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
       vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
       vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, {})
@@ -33,3 +76,4 @@ return {
     end,
   },
 }
+
