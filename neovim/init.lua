@@ -1,4 +1,6 @@
 require("config.lazy")
+require("config.colors").setup()
+
 
 --overriding command
 vim.cmd("set expandtab")
