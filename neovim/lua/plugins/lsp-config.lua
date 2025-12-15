@@ -53,19 +53,6 @@ return {
           },
         },
       })
-
-      -- YAML Language Server
-      lspconfig.yamlls.setup({
-        capabilities = capabilities,
-        settings = {
-          yaml = {
-            keyOrdering = false,
-            schemas = {},
-            validate = true,
-          },
-        },
-      })
-
       -- Keymaps for LSP
       vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
       vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
