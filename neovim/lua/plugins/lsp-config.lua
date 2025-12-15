@@ -19,25 +19,35 @@ return {
     config = function()
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-      local lspconfig = require("lspconfig")
-
       -- Ruby LSP
-      lspconfig.ruby_lsp.setup({
+      vim.lsp.config.ruby_lsp = {
+        cmd = { 'ruby-lsp' },
+        filetypes = { 'ruby' },
+        root_markers = { 'Gemfile', '.git' },
         capabilities = capabilities,
-      })
+      }
 
       -- Bash Language Server
-      lspconfig.bashls.setup({
+      vim.lsp.config.bashls = {
+        cmd = { 'bash-language-server', 'start' },
+        filetypes = { 'sh' },
+        root_markers = { '.git' },
         capabilities = capabilities,
-      })
+      }
 
       -- Groovy Language Server
-      lspconfig.groovyls.setup({
+      vim.lsp.config.groovyls = {
+        cmd = { 'groovy-language-server' },
+        filetypes = { 'groovy' },
+        root_markers = { '.git' },
         capabilities = capabilities,
-      })
+      }
 
       -- Lua Language Server (LuaLS)
-      lspconfig.lua_ls.setup({
+      vim.lsp.config.lua_ls = {
+        cmd = { 'lua-language-server' },
+        filetypes = { 'lua' },
+        root_markers = { '.luarc.json', '.luarc.jsonc', '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml', '.git' },
         capabilities = capabilities,
         settings = {
           Lua = {
@@ -52,7 +62,11 @@ return {
             },
           },
         },
-      })
+      }
+
+      -- Enable language servers
+      vim.lsp.enable({ 'ruby_lsp', 'bashls', 'groovyls', 'lua_ls' })
+
       -- Keymaps for LSP
       vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
       vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
