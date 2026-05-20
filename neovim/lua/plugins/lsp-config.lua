@@ -1,80 +1,106 @@
 return {
   {
     "williamboman/mason.nvim",
-    lazy = false,
-    config = function()
-      require("mason").setup()
-    end,
+    build = ":MasonUpdate",
+    opts = {},
   },
   {
     "williamboman/mason-lspconfig.nvim",
-    lazy = false,
+    dependencies = { "williamboman/mason.nvim" },
     opts = {
-      auto_install = true,
+      ensure_installed = {
+        "bashls",
+        "helm_ls",
+        "lua_ls",
+        "omnisharp",
+        "pyright",
+        "ruff",
+        "sqlls",
+        "ts_ls",
+        "yamlls",
+      },
+    },
+  },
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    opts = {
+      ensure_installed = {
+        "prettier",
+        "stylua",
+      },
     },
   },
   {
     "neovim/nvim-lspconfig",
-    lazy = false,
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+      "williamboman/mason-lspconfig.nvim",
+      "hrsh7th/cmp-nvim-lsp",
+    },
     config = function()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Ruby LSP
-      vim.lsp.config.ruby_lsp = {
-        cmd = { 'ruby-lsp' },
-        filetypes = { 'ruby' },
-        root_markers = { 'Gemfile', '.git' },
-        capabilities = capabilities,
-      }
+      vim.lsp.config("*", { capabilities = capabilities })
 
-      -- Bash Language Server
-      vim.lsp.config.bashls = {
-        cmd = { 'bash-language-server', 'start' },
-        filetypes = { 'sh' },
-        root_markers = { '.git' },
-        capabilities = capabilities,
-      }
-
-      -- Groovy Language Server
-      vim.lsp.config.groovyls = {
-        cmd = { 'groovy-language-server' },
-        filetypes = { 'groovy' },
-        root_markers = { '.git' },
-        capabilities = capabilities,
-      }
-
-      -- Lua Language Server (LuaLS)
-      vim.lsp.config.lua_ls = {
-        cmd = { 'lua-language-server' },
-        filetypes = { 'lua' },
-        root_markers = { '.luarc.json', '.luarc.jsonc', '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml', '.git' },
-        capabilities = capabilities,
+      vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
-            diagnostics = {
-              globals = { 'vim' },
-            },
+            diagnostics = { globals = { "vim" } },
             workspace = {
               library = vim.api.nvim_get_runtime_file("", true),
+              checkThirdParty = false,
             },
-            telemetry = {
-              enable = false,
+            telemetry = { enable = false },
+          },
+        },
+      })
+
+      vim.lsp.config("pyright", {
+        settings = {
+          python = {
+            analysis = {
+              typeCheckingMode = "basic",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
             },
           },
         },
-      }
+      })
 
-      -- Enable language servers
-      vim.lsp.enable({ 'ruby_lsp', 'bashls', 'groovyls', 'lua_ls' })
+      -- Ruff handles formatting/linting only; disable hover to avoid overlap with pyright
+      vim.lsp.config("ruff", {
+        on_attach = function(client)
+          client.server_capabilities.hoverProvider = false
+        end,
+      })
 
-      -- Keymaps for LSP
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-      vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
-      vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, {})
-      vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
-      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
-      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, {})
+      vim.lsp.config("yamlls", {
+        settings = {
+          yaml = {
+            validate = true,
+            schemas = {
+              ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+              ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "docker-compose*.yml",
+            },
+          },
+        },
+      })
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
+        callback = function(ev)
+          local opts = { buffer = ev.buf }
+          vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+          vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, opts)
+          vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, opts)
+          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+          vim.keymap.set("n", "<leader>gf", function()
+            vim.lsp.buf.format({ async = true })
+          end, opts)
+        end,
+      })
     end,
   },
 }
-
