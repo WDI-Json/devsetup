@@ -1,21 +1,23 @@
 export LANG="en_US.UTF-8"
 
+[[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin.omp.json)"
-eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(zoxide init --cmd cd zsh)"
 
-export PATH="$PATH:/Users/wouterdijks/Library/Application Support/JetBrains/Toolbox/scripts"
+export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
 # helm-utils
-export HELM_UTILS_HOME="/Users/wouterdijks/GITHUB/helm-utils/"
+export HELM_UTILS_HOME="$HOME/GITHUB/helm-utils"
 export PATH="$PATH:$HELM_UTILS_HOME"
+
+# Rancher Desktop
+export PATH="$HOME/.rd/bin:$PATH"
 
 # Aliases
 alias hosts="bat /etc/hosts"
 alias sshconfig="bat ~/.ssh/config"
-alias duckdb='/Users/wouterdijks/.duckdb/cli/latest/duckdb'
 
-## Kubectl
+# Kubectl
 alias k=kubectl
 alias kapi="kubectl api-resources"
 alias kg="kubectl get"
@@ -42,12 +44,8 @@ function y() {
 }
 
 # Docker CLI completions
-fpath=(/Users/wouterdijks/.docker/completions $fpath)
+fpath=($HOME/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 
 [[ $commands[kubectl] ]] && source <(kubectl completion zsh)
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/wouterdijks/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
