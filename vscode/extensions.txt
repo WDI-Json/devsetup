@@ -1,0 +1,30 @@
+# Theme & UI
+zhuangtongfa.material-theme
+pkief.material-icon-theme
+vscodevim.vim
+
+# AI
+anthropic.claude-code
+
+# Git
+eamodio.gitlens
+
+# Markdown & Documentation
+bierner.markdown-mermaid
+bierner.markdown-preview-github-styles
+jebbs.plantuml
+marp-team.marp-vscode
+shd101wyy.markdown-preview-enhanced
+yzhang.markdown-all-in-one
+
+# Data
+mechatroner.rainbow-csv
+
+# Infrastructure
+docker.docker
+ms-azuretools.vscode-containers
+ms-azuretools.vscode-docker
+redhat.vscode-yaml
+
+# Collaboration
+ms-vsliveshare.vsliveshare

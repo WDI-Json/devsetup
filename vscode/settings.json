@@ -1,0 +1,55 @@
+{
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.accessibilitySupport": "off",
+  "editor.fontSize": 16,
+  "editor.formatOnSave": true,
+  "editor.hover.delay": 500,
+  "editor.minimap.enabled": false,
+  "editor.quickSuggestionsDelay": 30,
+  "editor.renderWhitespace": "trailing",
+  "editor.wordWrap": "on",
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.decorations.colors": false,
+  "explorer.openEditors.visible": 0,
+  "extensions.ignoreRecommendations": true,
+  "files.autoSave": "onWindowChange",
+  "files.associations": {
+    ".gitmodules": "properties"
+  },
+  "git.allowForcePush": true,
+  "git.allowNoVerifyCommit": true,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "github.gitProtocol": "ssh",
+  "gitlens.codeLens.enabled": false,
+  "gitlens.showWelcomeOnInstall": false,
+  "gitlens.showWhatsNewAfterUpgrades": false,
+  "keyboard.touchbar.enabled": false,
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left"
+  },
+  "redhat.telemetry.enabled": false,
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "terminal.integrated.fontSize": 15,
+  "window.autoDetectColorScheme": true,
+  "window.commandCenter": true,
+  "workbench.colorTheme": "Material Theme",
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  },
+  "workbench.enableExperiments": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.layoutControl.enabled": false,
+  "workbench.sideBar.location": "right",
+  "workbench.startupEditor": "welcomePageInEmptyWorkbench",
+  "workbench.tips.enabled": false,
+  "workbench.tree.renderIndentGuides": "none",
+  "zenMode.fullScreen": false,
+  "[csv][yaml][plaintext]": {
+    "editor.wordWrap": "off"
+  }
+}
