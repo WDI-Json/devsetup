@@ -1,58 +1,77 @@
 tap "homebrew/services"
 tap "jandedobbeleer/oh-my-posh"
 tap "jesseduffield/lazygit"
-brew "zstd"
-brew "openssl@3"
+
+# CLI tools
 brew "bat"
-brew "glib"
-brew "dive"
-brew "docker"
+brew "duckdb"
 brew "fd"
-brew "harfbuzz"
-brew "icu4c@77"
-brew "ffmpeg"
-brew "ffmpegthumbnailer"
 brew "fzf"
 brew "gh"
-brew "librsvg"
-brew "graphviz"
-brew "imagemagick"
 brew "jq"
-brew "k9s"
-brew "kubernetes-cli"
 brew "lazygit"
-brew "luarocks"
-brew "minikube"
-brew "utf8proc", args: ["HEAD"]
 brew "neovim"
-brew "open-mpi"
-brew "plantuml"
-brew "podman"
-brew "poppler"
-brew "vips"
-brew "promptfoo"
+brew "oh-my-posh", tap: "jandedobbeleer/oh-my-posh"
 brew "ripgrep"
 brew "sevenzip"
-brew "stylua"
-brew "tilt"
 brew "tmux"
 brew "uv"
 brew "yazi"
 brew "yq"
 brew "zoxide"
-brew "jandedobbeleer/oh-my-posh/oh-my-posh"
-cask "chromedriver"
+
+# Neovim dependencies
+brew "luarocks"
+brew "stylua"
+
+# Kubernetes & containers
+brew "k9s"
+brew "kubernetes-cli"
+brew "minikube"
+brew "tilt"
+
+# Media & preview (yazi)
+brew "ffmpeg"
+brew "ffmpegthumbnailer"
+brew "imagemagick"
+brew "poppler"
+brew "vips"
+
+# Diagrams
+brew "graphviz"
+brew "plantuml"
+
+# Libraries
+brew "glib"
+brew "harfbuzz"
+brew "icu4c@77"
+brew "librsvg"
+brew "open-mpi"
+brew "openssl@3"
+brew "utf8proc", args: ["HEAD"]
+brew "zstd"
+
+# Dock management
+brew "dockutil"
+
+# LLM tooling
+brew "promptfoo"
+
+# Apps
 cask "claude-code"
 cask "copilot-cli"
 cask "docker-desktop"
 cask "ghostty"
+cask "google-chrome"
 cask "obsidian"
+cask "rancher"
 cask "visual-studio-code"
 cask "warp"
+
+# VS Code extensions
 vscode "anthropic.claude-code"
 vscode "bierner.markdown-mermaid"
 vscode "bierner.markdown-preview-github-styles"
-vscode "dawhite.mustache"
 vscode "docker.docker"
 vscode "eamodio.gitlens"
 vscode "jebbs.plantuml"
@@ -61,9 +80,9 @@ vscode "mechatroner.rainbow-csv"
 vscode "ms-azuretools.vscode-containers"
 vscode "ms-azuretools.vscode-docker"
 vscode "ms-vsliveshare.vsliveshare"
+vscode "pkief.material-icon-theme"
 vscode "redhat.vscode-yaml"
 vscode "shd101wyy.markdown-preview-enhanced"
 vscode "vscodevim.vim"
 vscode "yzhang.markdown-all-in-one"
 vscode "zhuangtongfa.material-theme"
-uv "specify-cli"
