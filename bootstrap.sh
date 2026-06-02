@@ -80,11 +80,21 @@ if $DRY_RUN; then
     echo "  All packages already installed"
   fi
 else
-  if brew bundle --file="$DOTFILES/Brewfile"; then
+  brew_success=false
+  for attempt in 1 2 3; do
+    if brew bundle --file="$DOTFILES/Brewfile"; then
+      brew_success=true
+      break
+    fi
+    log "brew bundle attempt $attempt failed (likely network) — retrying in 10s..."
+    sleep 10
+  done
+
+  if $brew_success; then
     ok "All Homebrew packages"
   else
     echo "" >> "$LOG"
-    echo "=== Homebrew packages that failed ===" >> "$LOG"
+    echo "=== Homebrew packages still missing after 3 attempts ===" >> "$LOG"
     missing=$(brew bundle check --file="$DOTFILES/Brewfile" 2>&1 | grep "is not installed" || true)
     if [[ -n "$missing" ]]; then
       while IFS= read -r line; do
@@ -118,7 +128,15 @@ else
     ok "SSH key generated"
     log "Add this SSH key to GitHub: https://github.com/settings/keys"
     cat "$HOME/.ssh/id_ed25519.pub"
-    read -rp "Press Enter once the key is added to GitHub..."
+    # Loop until GitHub recognises the key (or user aborts with Ctrl-C)
+    while true; do
+      read -rp "Press Enter once the key is added to GitHub to verify..."
+      if ssh -T -o StrictHostKeyChecking=accept-new -o BatchMode=yes git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        ok "SSH key verified with GitHub"
+        break
+      fi
+      log "GitHub did not accept the key yet — add it at https://github.com/settings/keys and try again."
+    done
   else
     fail "SSH key generation"
   fi
