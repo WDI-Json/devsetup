@@ -30,3 +30,4 @@ clone_or_update() {
 mkdir -p "$GITHUB_DIR"
 
 clone_or_update "neovim_config"
+clone_or_update "wdi-notes"
