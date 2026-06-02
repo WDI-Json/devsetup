@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Device name
+sudo scutil --set ComputerName "theMacalorian"
+sudo scutil --set HostName "theMacalorian"
+sudo scutil --set LocalHostName "theMacalorian"
+
 # Dock
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
