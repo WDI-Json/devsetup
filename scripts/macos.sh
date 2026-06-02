@@ -8,14 +8,15 @@ if [[ -n "${MAC_HOSTNAME:-}" ]]; then
   sudo scutil --set LocalHostName "$MAC_HOSTNAME"
 fi
 
-# Dock
+# Dock (mirrors current setup: vertical on the left, no magnification)
+defaults write com.apple.dock orientation -string "left"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.3
 defaults write com.apple.dock show-recents -bool false
-defaults write com.apple.dock tilesize -int 48
-defaults write com.apple.dock magnification -bool true
-defaults write com.apple.dock largesize -int 64
+defaults write com.apple.dock tilesize -int 92
+defaults write com.apple.dock magnification -bool false
+defaults write com.apple.dock largesize -int 16
 
 # Finder
 defaults write com.apple.finder ShowPathbar -bool true
