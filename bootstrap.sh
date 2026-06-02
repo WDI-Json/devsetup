@@ -190,6 +190,8 @@ else
     log "Installing tools listed in mise/config.toml (Python, Node, Java)..."
     if mise install --yes; then
       ok "mise tools installed"
+      log "Installed runtimes:"
+      mise current | sed 's/^/  /' | tee -a "$LOG"
     else
       fail "mise install (run 'mise install' manually to retry)"
     fi
