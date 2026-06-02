@@ -18,6 +18,18 @@ else
   echo "" >> "$LOG"
 fi
 
+# ── Interactive prompts ───────────────────────────────────────────────────────
+if ! $DRY_RUN; then
+  printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
+  read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
+  read -rp "  Change Mac hostname? [y/N]: " change_hostname
+  if [[ "$change_hostname" =~ ^[Yy] ]]; then
+    read -rp "  New hostname: " MAC_HOSTNAME
+    export MAC_HOSTNAME
+  fi
+  echo ""
+fi
+
 log()  { printf '\e[1;34m==>\e[0m %s\n' "$*"; }
 ok()   { $DRY_RUN || echo "[OK]     $*" >> "$LOG"; }
 dry()  { printf '  \e[90mwould: %s\e[0m\n' "$*"; }
@@ -124,18 +136,27 @@ if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
 elif $DRY_RUN; then
   dry "generate SSH key ~/.ssh/id_ed25519 (ed25519)"
 else
-  if ssh-keygen -t ed25519 -C "Wouter.Dijks@topicus.nl" -f "$HOME/.ssh/id_ed25519" -N ""; then
+  if ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$HOME/.ssh/id_ed25519" -N ""; then
     ok "SSH key generated"
+    # Ensure ssh-agent picks up the new key (macOS Keychain)
+    eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
+    ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" 2>/dev/null \
+      || ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+
     log "Add this SSH key to GitHub: https://github.com/settings/keys"
     cat "$HOME/.ssh/id_ed25519.pub"
-    # Loop until GitHub recognises the key (or user aborts with Ctrl-C)
     while true; do
-      read -rp "Press Enter once the key is added to GitHub to verify..."
-      if ssh -T -o StrictHostKeyChecking=accept-new -o BatchMode=yes git@github.com 2>&1 | grep -q "successfully authenticated"; then
+      read -rp "Press Enter once the key is added to GitHub to verify (or Ctrl-C to skip)... "
+      ssh_output=$(ssh -T -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes \
+                       -i "$HOME/.ssh/id_ed25519" git@github.com 2>&1)
+      if echo "$ssh_output" | grep -q "successfully authenticated"; then
         ok "SSH key verified with GitHub"
         break
       fi
-      log "GitHub did not accept the key yet — add it at https://github.com/settings/keys and try again."
+      echo ""
+      log "GitHub response was:"
+      echo "$ssh_output" | sed 's/^/    /'
+      log "Verify the key at https://github.com/settings/keys and try again."
     done
   else
     fail "SSH key generation"

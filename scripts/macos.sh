@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Device name
-sudo scutil --set ComputerName "theMacalorian"
-sudo scutil --set HostName "theMacalorian"
-sudo scutil --set LocalHostName "theMacalorian"
+# Device name (only changed if MAC_HOSTNAME is set; leave current name otherwise)
+if [[ -n "${MAC_HOSTNAME:-}" ]]; then
+  sudo scutil --set ComputerName "$MAC_HOSTNAME"
+  sudo scutil --set HostName "$MAC_HOSTNAME"
+  sudo scutil --set LocalHostName "$MAC_HOSTNAME"
+fi
 
 # Dock
 defaults write com.apple.dock autohide -bool true
