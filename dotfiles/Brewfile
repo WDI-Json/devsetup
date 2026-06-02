@@ -71,6 +71,7 @@ cask "slack"
 cask "tableplus"
 cask "visual-studio-code"
 cask "warp"
+cask "wispr-flow"
 
 # VS Code extensions
 vscode "anthropic.claude-code"
