@@ -65,6 +65,7 @@ cask "ghostty"
 cask "google-chrome"
 cask "obsidian"
 cask "rancher"
+cask "rectangle"
 cask "visual-studio-code"
 cask "warp"
 
