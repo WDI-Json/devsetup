@@ -57,10 +57,8 @@ brew "promptfoo"
 
 # Apps
 cask "claude-code"
-cask "copilot-cli"
 cask "ghostty"
 cask "google-chrome"
-cask "obs"
 cask "obsidian"
 cask "rancher"
 cask "rectangle"
