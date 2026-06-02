@@ -134,6 +134,31 @@ else
   fail "Symlink ~/.zshrc"
 fi
 
+# ── Neovim config symlink ─────────────────────────────────────────────────────
+log "Neovim config..."
+if $DRY_RUN; then
+  dry "link ~/.config/nvim -> $REPO_DIR/neovim"
+else
+  mkdir -p "$HOME/.config"
+  if backup_and_link "$REPO_DIR/neovim" "$HOME/.config/nvim"; then
+    ok "Symlink ~/.config/nvim"
+  else
+    fail "Symlink ~/.config/nvim"
+  fi
+fi
+
+# ── Git commit-msg hook ───────────────────────────────────────────────────────
+log "Git commit-msg hook..."
+if $DRY_RUN; then
+  dry "install .git/hooks/commit-msg -> $REPO_DIR/hooks/commit-msg"
+else
+  if ln -sf "../../hooks/commit-msg" "$REPO_DIR/.git/hooks/commit-msg"; then
+    ok "Git commit-msg hook installed"
+  else
+    fail "Git commit-msg hook"
+  fi
+fi
+
 # ── Ghostty config symlink ────────────────────────────────────────────────────
 GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
 log "Ghostty config..."

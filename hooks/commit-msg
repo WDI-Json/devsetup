@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Enforce commit message prefix: "setup: " (devsetup work) or "vim: " (neovim config).
+# Allow git's own merge/revert commits.
+
+if ! grep -qE "^(setup|vim): |^Merge |^Revert " "$1"; then
+  echo "Error: commit message must start with 'setup: ' or 'vim: '"
+  echo "Got: $(head -1 "$1")"
+  exit 1
+fi

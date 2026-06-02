@@ -26,10 +26,15 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 │   ├── settings.json     # VS Code user settings (symlinked)
 │   ├── keybindings.json  # VS Code keybindings (symlinked)
 │   └── extensions.txt    # Extensions installed via code --install-extension
+├── neovim/               # Neovim config (symlinked to ~/.config/nvim)
+├── ghostty/
+│   └── config            # Ghostty config (symlinked)
 ├── scripts/
 │   ├── macos.sh          # macOS system defaults
 │   ├── dock.sh           # Dock layout via dockutil
 │   └── repos.sh          # Clone personal GitHub repositories
+├── hooks/
+│   └── commit-msg        # Enforces "setup: " or "vim: " prefix
 └── CascadiaMono/         # Fonts (copied to ~/Library/Fonts)
 ```
 
@@ -56,6 +61,17 @@ Changes to dotfiles in this repo take effect immediately since the live config f
 | `~/.zshrc` | `dotfiles/.zshrc` |
 | `~/Library/Application Support/Code/User/settings.json` | `vscode/settings.json` |
 | `~/Library/Application Support/Code/User/keybindings.json` | `vscode/keybindings.json` |
+| `~/.config/nvim` | `neovim/` |
+| `~/Library/Application Support/com.mitchellh.ghostty/config` | `ghostty/config` |
+| `.git/hooks/commit-msg` | `hooks/commit-msg` |
+
+## Commit convention
+
+This repo enforces a prefix on every commit message:
+- `setup: ` — devsetup work (bootstrap, dotfiles, Brewfile, scripts)
+- `vim: ` — neovim config changes (`neovim/` directory)
+
+The `hooks/commit-msg` hook rejects commits without one of these prefixes. Merge and revert commits are exempt.
 
 ## Adding repos
 
