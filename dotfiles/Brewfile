@@ -1,5 +1,4 @@
 tap "homebrew/services"
-tap "jandedobbeleer/oh-my-posh"
 tap "jesseduffield/lazygit"
 
 # CLI tools
@@ -11,7 +10,7 @@ brew "gh"
 brew "jq"
 brew "lazygit"
 brew "neovim"
-brew "oh-my-posh", tap: "jandedobbeleer/oh-my-posh"
+brew "oh-my-posh"
 brew "ripgrep"
 brew "sevenzip"
 brew "tmux"
@@ -48,7 +47,7 @@ brew "icu4c@77"
 brew "librsvg"
 brew "open-mpi"
 brew "openssl@3"
-brew "utf8proc", args: ["HEAD"]
+brew "utf8proc"
 brew "zstd"
 
 # Dock management
@@ -60,7 +59,6 @@ brew "promptfoo"
 # Apps
 cask "claude-code"
 cask "copilot-cli"
-cask "docker-desktop"
 cask "ghostty"
 cask "google-chrome"
 cask "obs"
