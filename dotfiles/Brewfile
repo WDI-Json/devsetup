@@ -69,9 +69,9 @@ cask "wispr-flow"
 
 # VS Code extensions
 vscode "anthropic.claude-code"
+vscode "dbtlabsinc.dbt"
 vscode "docker.docker"
 vscode "eamodio.gitlens"
-vscode "innoverio.vscode-dbt-power-user"
 vscode "jebbs.plantuml"
 vscode "mechatroner.rainbow-csv"
 vscode "ms-python.python"
