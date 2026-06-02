@@ -290,7 +290,8 @@ if $DRY_RUN; then
   printf '\e[1;33mDry run complete — run without --dry-run to apply.\e[0m\n'
 else
   echo "" >> "$LOG"
-  failure_count=$(grep -c "^\[FAILED\]" "$LOG" 2>/dev/null || echo 0)
+  failure_count=$(grep -c "^\[FAILED\]" "$LOG" 2>/dev/null || true)
+  failure_count="${failure_count:-0}"
   if [[ "$failure_count" -gt 0 ]]; then
     printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
     grep "^\[FAILED\]" "$LOG"
