@@ -1,0 +1,9 @@
+theme = catppuccin-frappe.conf
+font-family = CaskaydiaMono Nerd Font Mono
+adjust-cell-height = 10%
+background-opacity = 0.75
+window-inherit-working-directory = true
+auto-update = check
+window-height = 30
+window-width = 110
+font-size = 16

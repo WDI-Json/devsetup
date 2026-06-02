@@ -134,6 +134,20 @@ else
   fail "Symlink ~/.zshrc"
 fi
 
+# ── Ghostty config symlink ────────────────────────────────────────────────────
+GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+log "Ghostty config..."
+if $DRY_RUN; then
+  dry "link Ghostty config -> $REPO_DIR/ghostty/config"
+else
+  mkdir -p "$GHOSTTY_DIR"
+  if backup_and_link "$REPO_DIR/ghostty/config" "$GHOSTTY_DIR/config"; then
+    ok "Symlink Ghostty config"
+  else
+    fail "Symlink Ghostty config"
+  fi
+fi
+
 # ── VS Code symlinks ──────────────────────────────────────────────────────────
 log "VS Code config symlinks..."
 if $DRY_RUN; then
