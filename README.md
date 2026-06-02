@@ -80,6 +80,24 @@ The `hooks/commit-msg` hook rejects commits without one of these prefixes. Merge
 
 Edit `scripts/repos.sh` and add a `clone_or_update "repo-name"` line.
 
+## Language runtimes (mise)
+
+`mise` manages Python, Node and Java versions and activates them in every shell. `mise/config.toml` pins the major LTS versions; mise picks the newest patch automatically.
+
+Current pins:
+- Python `3.14`
+- Node `24` (LTS)
+- Java `temurin-21` (LTS)
+
+To bump a version:
+```bash
+# Edit the symlinked config (changes go straight into the repo)
+$EDITOR ~/.config/mise/config.toml
+mise install   # fetch the new version
+```
+
+To switch versions per project, drop a local `mise.toml` (or `.tool-versions`) in the project root — mise prefers the closest config.
+
 ## Dry-run
 
 De dry-run installeert niets, maar laat wel zien wat er zou gebeuren. Hij leest de huidige staat van je Mac — wat al geïnstalleerd is, welke repos al bestaan — en toont alleen de acties die daadwerkelijk iets zouden veranderen.
