@@ -1,0 +1,120 @@
+[?1049h[?1h=[H[2J[?2004h[?2026$p[?2027$p[?2031$p[?2048$p[?u[c[?25h[?25l(B[m[H                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                [24;1H(B[m[91mError detected while processing /Users/wouterdijks/.config/nvim/init.lua:(B[m[K[21;24r[21;1H[3M[r[20;1H                                                                                
+
+[91mLua module not found for config of mason-lspconfig.nvim. Please use a `config()`
+(B[m[93mAlpha: Mini icons or devicons get icon failed, disable file icons(B[m               
+[96mPress ENTER or type command to continue(B[m                                         [2 q[2 q[H[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[91mError detected while processing /Users/wouterdijks/.config/nvim/init.lua:(B[m[K
+[91mLua module not found for config of mason-lspconfig.nvim. Please use a `config()`
+(B[m[93mAlpha: Mini icons or devicons get icon failed, disable file icons(B[m[K
+[96mPress ENTER or type command to continue(B[m[K[?25h[?25l[?1004h[?25h[?25l[H[K
+                                                                          [K
+                                                                          [K
+                                                                          [K
+                                                                          [K
+                                                 [6;51H[6;52H                       [K
+          [7;12H█[7;13H█[7;14H█[7;15H█[7;16H[7;17H [7;19H█[7;20H█[7;21H█[7;22H█[7;23H█[7;24H█[7;25H[7;26H           [7;38H█[7;39H█[7;40H█[7;41H█[7;42H█[7;43H[7;44H      [7;51H█[7;52H█[7;53H[7;54H                     [K
+         [8;11H█[8;12H█[8;13H█[8;14H█[8;15H█[8;16H█[8;17H[8;18H[8;19H█[8;20H█[8;21H█[8;22H█[8;23H█[8;24H[8;25H             [8;39H█[8;40H█[8;41H█[8;42H█[8;43H█[8;44H[8;45H [8;47H                            [K
+         [9;11H█[9;12H█[9;13H█[9;14H█[9;15H█[9;16H█[9;17H█[9;18H[9;19H[9;20H█[9;21H█[9;22H[9;23H [9;25H█[9;26H█[9;27H█[9;28H█[9;29H█[9;30H█[9;31H█[9;32H█[9;33H[9;34H[9;35H█[9;36H█[9;37H█[9;38H[9;39H[9;40H█[9;41H█[9;42H█[9;43H█[9;44H█[9;45H[9;46H█[9;47H█[9;48H█[9;49H █[9;51H█[9;52H█[9;53H[9;54H   [9;58H█[9;59H█[9;60H█[9;61H[9;62H█[9;63H█[9;64H█[9;65H█[9;66H[9;67H█[9;68H█[9;69H█[9;70H█[9;71H[9;72H   [K
+        [10;10H█[10;11H[10;12H[10;13H█[10;14H█[10;15H█[10;16H█[10;17H█[10;18H█[10;19H█[10;20H█[10;21H[10;22H  [10;25H█[10;26H█[10;27H█[10;28H[10;29H    [10;34H█[10;35H█[10;36H█[10;37H█[10;38H█[10;39H[10;40H[10;41H█[10;42H█[10;43H█[10;44H█[10;45H█[10;46H█[10;47H█[10;48H█[10;49H █[10;51H█[10;52H█[10;53H█[10;54H█[10;55H █[10;57H█[10;58H█[10;59H█[10;60H█[10;61H[10;62H█[10;63H█[10;64H█[10;65H█[10;66H[10;67H█[10;68H█[10;69H█[10;70H█[10;71H█[10;72H   [K
+       [11;9H█[11;10H█[11;11H█[11;12H[11;13H[11;14H█[11;15H█[11;16H█[11;17H█[11;18H█[11;19H█[11;20H[11;21H [11;23H█[11;24H█[11;25H█[11;26H█[11;27H█[11;28H█[11;29H█[11;30H█[11;31H[11;32H[11;33H█[11;34H█[11;35H[11;36H [11;38H█[11;39H█[11;40H[11;41H[11;42H█[11;43H█[11;44H█[11;45H█[11;46H█[11;47H█[11;48H█[11;49H █[11;51H█[11;52H█[11;53H█[11;54H█[11;55H █[11;57H█[11;58H█[11;59H█[11;60H█[11;61H █[11;63H█[11;64H█[11;65H█[11;66H █[11;68H█[11;69H█[11;70H█[11;71H█[11;72H   [K
+     [12;7H█[12;8H█[12;9H█[12;10H█[12;11H█[12;12H█[12;13H[12;14H[12;15H█[12;16H█[12;17H█[12;18H█[12;19H█[12;20H[12;21H [12;23H█[12;24H█[12;25H█[12;26H[12;27H    [12;32H█[12;33H█[12;34H█[12;35H[12;36H [12;38H█[12;39H█[12;40H█[12;41H[12;42H[12;43H█[12;44H█[12;45H█[12;46H█[12;47H█[12;48H█[12;49H █[12;51H█[12;52H█[12;53H█[12;54H█[12;55H █[12;57H█[12;58H█[12;59H█[12;60H█[12;61H █[12;63H█[12;64H█[12;65H█[12;66H █[12;68H█[12;69H█[12;70H█[12;71H█[12;72H[12;73H  [K
+    [13;6H█[13;7H█[13;8H█[13;9H█[13;10H█[13;11H█[13;12H[13;13H  [13;16H█[13;17H█[13;18H█[13;19H[13;20H[13;21H█[13;22H█[13;23H█[13;24H█[13;25H█[13;26H█[13;27H█[13;28H█[13;29H█[13;30H[13;31H[13;32H█[13;33H█[13;34H█[13;35H█[13;36H█[13;37H█[13;38H█[13;39H█[13;40H█[13;41H[13;42H [13;44H█[13;45H█[13;46H█[13;47H█[13;48H[13;49H █[13;51H█[13;52H█[13;53H█[13;54H█[13;55H █[13;57H█[13;58H█[13;59H█[13;60H█[13;61H █[13;63H█[13;64H█[13;65H█[13;66H █[13;68H█[13;69H█[13;70H█[13;71H█[13;72H█[13;73H[13;74H [K
+                                                                          [K
+                                                                          [K
+                                                                          [K
+[K
+[K
+   [e] New file[K
+[K
+[96m   MRU /Users/wouterdijks/.config/nvim(B[m[K
+[K
+(B[0;7m[Scratch]                                                     19,5           Top(B[m
+[J[?1002h[?1006h[19;5H[?25h[?25l[5B[91mFailed to run `config` for catppuccin[2;24r[2;1H(B[m[22M[r[H(B[0;7m                                                                                
+
+(B[m                                                                                
+[91m/Users/wouterdijks/.config/nvim/lua/plugins/catppuccin.lua:8: module 'catppuccin
+' not found:(B[m                                                                    
+[91m        no field package.preload['catppuccin'](B[m                                  
+[91m        cache_loader: module 'catppuccin' not found(B[m                             
+[91m        cache_loader_lib: module 'catppuccin' not found(B[m                         
+[91m        no file './catppuccin.lua'(B[m                                              
+[91m        no file '/opt/homebrew/share/luajit-2.1/catppuccin.lua'(B[m                 
+[91m        no file '/usr/local/share/lua/5.1/catppuccin.lua'(B[m                       
+[91m        no file '/usr/local/share/lua/5.1/catppuccin/init.lua'(B[m                  
+[91m        no file '/opt/homebrew/share/lua/5.1/catppuccin.lua'(B[m                    
+[91m        no file '/opt/homebrew/share/lua/5.1/catppuccin/init.lua'(B[m               
+[91m        no file './catppuccin.so'(B[m                                               
+[91m        no file '/usr/local/lib/lua/5.1/catppuccin.so'(B[m                          
+[91m        no file '/opt/homebrew/lib/lua/5.1/catppuccin.so'(B[m                       
+[91m        no file '/usr/local/lib/lua/5.1/loadall.so'(B[m                             
+                                                                                
+[91m# stacktrace:(B[m                                                                   
+[91m  - lua/plugins/catppuccin.lua:8 _in_ **config**(B[m                                
+[91m  - lua/config/lazy.lua:26(B[m                                                      
+[91m  - init.lua:1(B[m                                                                  
+[96mPress ENTER or type command to continue(B[m                                         [?1002l[?1006l[24;40H[?25h[?25l[H[M[23M[91mFailed to source `/Users/wouterdijks/.local/share/nvim/lazy/nvim-treesitter/plug
+in/nvim-treesitter.lua`(B[m                                                         
+                                                                                
+[91mvim/_editor.lua:0: /Users/wouterdijks/.config/nvim/init.lua..nvim_exec2() called
+ at /Users/wouterdijks/.config/nvim/init.lua:0[1]../Users/wouterdijks/.local/sha
+re/nvim/lazy/nvim-treesitter/plugin/nvim-treesitter.lua: Vim(source):E5113: Erro
+r while calling lua chunk: ...are/nvim/lazy/nvim-treesitter/plugin/nvim-treesitt
+er.lua:9: module 'nvim-treesitter' not found:(B[m                                   
+[91m        no field package.preload['nvim-treesitter'](B[m                             
+[91m        cache_loader: module 'nvim-treesitter' not found(B[m                        
+[91m        cache_loader_lib: module 'nvim-treesitter' not found(B[m                    
+[91m        no file './nvim-treesitter.lua'(B[m                                         
+[91m        no file '/opt/homebrew/share/luajit-2.1/nvim-treesitter.lua'(B[m            
+[91m        no file '/usr/local/share/lua/5.1/nvim-treesitter.lua'(B[m                  
+[91m        no file '/usr/local/share/lua/5.1/nvim-treesitter/init.lua'(B[m             
+[91m        no file '/opt/homebrew/share/lua/5.1/nvim-treesitter.lua'(B[m               
+[91m        no file '/opt/homebrew/share/lua/5.1/nvim-treesitter/init.lua'(B[m          
+[91m        no file './nvim-treesitter.so'(B[m                                          
+[91m        no file '/usr/local/lib/lua/5.1/nvim-treesitter.so'(B[m                     
+[91m        no file '/opt/homebrew/lib/lua/5.1/nvim-treesitter.so'(B[m                  
+[91m        no file '/usr/local/lib/lua/5.1/loadall.so'(B[m                             
+[91mstack traceback:(B[m                                                                
+[91m        [C]: in function 'require'(B[m                                              
+[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91m        ...are/nvim/lazy/nvim-treesitter/plugin/nvim-treesitter.lua:9: in main c[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91mhunk[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91m        [C]: in function 'nvim_exec2'[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91m        vim/_editor.lua: in function 'cmd'[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91m        ...local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:510: in func[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91mtion <...local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:509>[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[24;1H[10X[91m        [C]: in function 'xpcall'[H(B[m[M[23B[96m-- More --(B[m                                                                      [24;11H[?25h[?25l[96m SPACE/d/j: screen/page/line down, b/u/k: up, q: quit [?25h
