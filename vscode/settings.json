@@ -37,12 +37,10 @@
   "terminal.integrated.fontSize": 15,
   "window.autoDetectColorScheme": true,
   "window.commandCenter": true,
-  "workbench.colorTheme": "Material Theme",
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
   },
   "workbench.enableExperiments": false,
-  "workbench.iconTheme": "material-icon-theme",
   "workbench.layoutControl.enabled": false,
   "workbench.sideBar.location": "right",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
