@@ -1,0 +1,7 @@
+# Global mise config — auto-installed for every shell.
+# Pinned to latest LTS major versions; mise picks the newest patch.
+
+[tools]
+python = "3.14"
+node = "24"
+java = "temurin-21"

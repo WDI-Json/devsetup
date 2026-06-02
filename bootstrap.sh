@@ -173,6 +173,31 @@ else
   fail "Symlink ~/.zshrc"
 fi
 
+# ── mise config + tool install ────────────────────────────────────────────────
+MISE_DIR="$HOME/.config/mise"
+log "mise config..."
+if $DRY_RUN; then
+  dry "link ~/.config/mise/config.toml -> $REPO_DIR/mise/config.toml"
+  dry "run 'mise install' to fetch Python, Node, Java"
+else
+  mkdir -p "$MISE_DIR"
+  if backup_and_link "$REPO_DIR/mise/config.toml" "$MISE_DIR/config.toml"; then
+    ok "Symlink mise config"
+  else
+    fail "Symlink mise config"
+  fi
+  if command -v mise &>/dev/null; then
+    log "Installing tools listed in mise/config.toml (Python, Node, Java)..."
+    if mise install --yes; then
+      ok "mise tools installed"
+    else
+      fail "mise install (run 'mise install' manually to retry)"
+    fi
+  else
+    fail "mise (command not found — was brew bundle successful?)"
+  fi
+fi
+
 # ── Neovim config symlink ─────────────────────────────────────────────────────
 log "Neovim config..."
 if $DRY_RUN; then

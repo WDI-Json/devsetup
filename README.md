@@ -29,6 +29,8 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 ├── neovim/               # Neovim config (symlinked to ~/.config/nvim)
 ├── ghostty/
 │   └── config            # Ghostty config (symlinked)
+├── mise/
+│   └── config.toml       # mise tool versions: Python, Node, Java LTS
 ├── scripts/
 │   ├── macos.sh          # macOS system defaults
 │   ├── dock.sh           # Dock layout via dockutil
@@ -63,6 +65,7 @@ Changes to dotfiles in this repo take effect immediately since the live config f
 | `~/Library/Application Support/Code/User/keybindings.json` | `vscode/keybindings.json` |
 | `~/.config/nvim` | `neovim/` |
 | `~/Library/Application Support/com.mitchellh.ghostty/config` | `ghostty/config` |
+| `~/.config/mise/config.toml` | `mise/config.toml` |
 | `.git/hooks/commit-msg` | `hooks/commit-msg` |
 
 ## Commit convention
