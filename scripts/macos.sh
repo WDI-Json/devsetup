@@ -36,9 +36,27 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
-# Trackpad: tap to click
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults write NSGlobalDomain com.apple.mouse.tapToBehavior -int 1
+# Mouse & Trackpad (mirrors current setup)
+# Tracking speed and force click
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 2
+defaults write NSGlobalDomain com.apple.trackpad.forceClick -bool true
+
+# Trackpad: physical click only (no tap-to-click)
+defaults write com.apple.AppleMultitouchTrackpad Clicking -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -int 0
+
+# Trackpad: right-click via bottom-right corner, not two-finger
+defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -int 0
+defaults write com.apple.AppleMultitouchTrackpad TrackpadCornerSecondaryClick -int 2
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
+
+# No three-finger drag
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -int 0
+
+# Magic Mouse: two-button mode (right click as secondary)
+defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string TwoButton
 
 # Auto dark/light mode
 defaults write NSGlobalDomain AppleInterfaceStyleSwitchesAutomatically -bool true
