@@ -119,6 +119,33 @@ else
   fi
 fi
 
+# ── Rancher Desktop — docker on PATH ─────────────────────────────────────────
+log "Checking docker on PATH (Rancher Desktop)..."
+if command -v docker &>/dev/null; then
+  ok "docker is on PATH (Rancher Desktop driver available)"
+elif $DRY_RUN; then
+  dry "verify docker is on PATH — open Rancher Desktop and enable dockerd (moby) in Preferences → Container Engine"
+else
+  fail "docker not on PATH — open Rancher Desktop, enable dockerd (moby) in Preferences → Container Engine, then re-run"
+fi
+
+# ── minikube default driver ───────────────────────────────────────────────────
+log "Checking minikube default driver..."
+if $DRY_RUN; then
+  dry "set minikube default driver to docker (minikube config set driver docker)"
+elif ! command -v minikube &>/dev/null; then
+  fail "minikube not found — was brew bundle successful?"
+else
+  current_driver=$(minikube config get driver 2>/dev/null || true)
+  if [[ "$current_driver" == "docker" ]]; then
+    ok "minikube default driver already set to docker (Rancher Desktop)"
+  elif minikube config set driver docker 2>/dev/null; then
+    ok "minikube default driver set to docker (Rancher Desktop)"
+  else
+    fail "minikube config set driver docker"
+  fi
+fi
+
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 log "CascadiaMono fonts..."
 if $DRY_RUN; then
