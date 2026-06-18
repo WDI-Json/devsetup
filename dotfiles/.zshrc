@@ -2,7 +2,6 @@ export LANG="en_US.UTF-8"
 
 [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/catppuccin.omp.json)"
-eval "$(zoxide init --cmd cd zsh)"
 command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
@@ -50,3 +49,6 @@ autoload -Uz compinit
 compinit
 
 [[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+
+# zoxide — must be initialized at the very end of this file
+eval "$(zoxide init --cmd cd zsh)"
