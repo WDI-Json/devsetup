@@ -129,10 +129,11 @@ else
   fail "oh-my-posh not found — was brew bundle successful?"
 fi
 
-# ── Ollama — pull Qwen3 model ─────────────────────────────────────────────────
-log "Pulling Ollama qwen3:8b model..."
+# ── Ollama — pull models ──────────────────────────────────────────────────────
+log "Pulling Ollama models..."
 if $DRY_RUN; then
   dry "ollama pull qwen3:8b"
+  dry "ollama pull nomic-embed-text"
 elif command -v ollama &>/dev/null; then
   _ollama_was_running=false
   if pgrep -x ollama &>/dev/null; then
@@ -142,11 +143,13 @@ elif command -v ollama &>/dev/null; then
     _ollama_pid=$!
     sleep 3
   fi
-  if ollama pull qwen3:8b; then
-    ok "Ollama qwen3:8b"
-  else
-    fail "ollama pull qwen3:8b"
-  fi
+  for _model in qwen3:8b nomic-embed-text; do
+    if ollama pull "$_model"; then
+      ok "Ollama $_model"
+    else
+      fail "ollama pull $_model"
+    fi
+  done
   if ! $_ollama_was_running && [[ -n "${_ollama_pid:-}" ]]; then
     kill "$_ollama_pid" 2>/dev/null || true
   fi
