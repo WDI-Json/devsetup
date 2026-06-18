@@ -1,5 +1,3 @@
-tap "jesseduffield/lazygit"
-
 # CLI tools
 brew "bat"
 brew "duckdb"
