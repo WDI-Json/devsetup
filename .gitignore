@@ -1,3 +1,4 @@
 log.txt
 *.backup
 /neovim/lazy-lock.json
+/neovim/error.log
