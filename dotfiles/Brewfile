@@ -54,7 +54,11 @@ brew "zstd"
 brew "dockutil"
 
 # LLM tooling
+brew "ollama"
 brew "promptfoo"
+
+# Infrastructure as code
+brew "pulumi"
 
 # Apps
 cask "claude-code"

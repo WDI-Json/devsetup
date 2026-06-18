@@ -119,6 +119,41 @@ else
   fi
 fi
 
+# ── oh-my-posh — trust binary (macOS Gatekeeper) ─────────────────────────────
+log "Trusting oh-my-posh binary..."
+if $DRY_RUN; then
+  dry "xattr -dr com.apple.quarantine \$(brew --prefix)/bin/oh-my-posh"
+elif command -v oh-my-posh &>/dev/null; then
+  xattr -dr com.apple.quarantine "$(brew --prefix)/bin/oh-my-posh" 2>/dev/null && ok "oh-my-posh trusted" || ok "oh-my-posh (no quarantine attribute)"
+else
+  fail "oh-my-posh not found — was brew bundle successful?"
+fi
+
+# ── Ollama — pull Qwen3 model ─────────────────────────────────────────────────
+log "Pulling Ollama qwen3:8b model..."
+if $DRY_RUN; then
+  dry "ollama pull qwen3:8b"
+elif command -v ollama &>/dev/null; then
+  _ollama_was_running=false
+  if pgrep -x ollama &>/dev/null; then
+    _ollama_was_running=true
+  else
+    ollama serve &>/dev/null &
+    _ollama_pid=$!
+    sleep 3
+  fi
+  if ollama pull qwen3:8b; then
+    ok "Ollama qwen3:8b"
+  else
+    fail "ollama pull qwen3:8b"
+  fi
+  if ! $_ollama_was_running && [[ -n "${_ollama_pid:-}" ]]; then
+    kill "$_ollama_pid" 2>/dev/null || true
+  fi
+else
+  fail "ollama not found — was brew bundle successful?"
+fi
+
 # ── Rancher Desktop — docker on PATH ─────────────────────────────────────────
 log "Checking docker on PATH (Rancher Desktop)..."
 if command -v docker &>/dev/null; then
