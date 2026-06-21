@@ -52,3 +52,7 @@ compinit
 
 # zoxide — must be initialized at the very end of this file
 eval "$(zoxide init --cmd cd zsh)"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/wdijks/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
