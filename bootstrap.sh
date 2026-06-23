@@ -395,6 +395,37 @@ else
   fail "Repositories (check scripts/repos.sh and SSH key)"
 fi
 
+# ── WDI-Notes vault symlink (iCloud + Obsidian) ───────────────────────────────
+# wdi-notes lives in the iCloud-synced Obsidian vault (single source of truth) and
+# is git-tracked there (remote: github.com/WDI-Json/wdi-notes). Link ~/GITHUB/wdi-notes
+# -> the vault so the familiar path works and pushes go to GitHub from one copy.
+# On a fresh machine iCloud may not be signed in / synced yet, so the vault won't
+# exist — in that case skip cleanly and link it later (re-run bootstrap once synced).
+WDI_NOTES_LINK="$HOME/GITHUB/wdi-notes"
+WDI_NOTES_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/WDI-Notes"
+log "WDI-Notes vault symlink..."
+if $DRY_RUN; then
+  if [[ -d "$WDI_NOTES_VAULT" ]]; then
+    dry "link $WDI_NOTES_LINK -> $WDI_NOTES_VAULT"
+  else
+    dry "skip — iCloud vault not present yet; link after iCloud syncs"
+  fi
+elif [[ ! -d "$WDI_NOTES_VAULT" ]]; then
+  log "iCloud vault not found — sign in to iCloud, let Obsidian/iCloud sync, then re-run bootstrap (or link manually)"
+  ok "WDI-Notes vault symlink (skipped — iCloud not synced yet)"
+elif [[ -L "$WDI_NOTES_LINK" ]]; then
+  ok "WDI-Notes vault symlink (already linked)"
+elif [[ -e "$WDI_NOTES_LINK" ]]; then
+  fail "WDI-Notes: $WDI_NOTES_LINK exists and is not a symlink — remove that clone, then re-run (the vault is the source of truth)"
+else
+  mkdir -p "$HOME/GITHUB"
+  if ln -s "$WDI_NOTES_VAULT" "$WDI_NOTES_LINK"; then
+    ok "WDI-Notes vault symlink"
+  else
+    fail "WDI-Notes vault symlink"
+  fi
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 if $DRY_RUN; then

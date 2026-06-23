@@ -29,4 +29,8 @@ clone_or_update() {
 
 mkdir -p "$GITHUB_DIR"
 
-clone_or_update "wdi-notes"
+# NOTE: wdi-notes is intentionally NOT cloned here. It lives in the iCloud-synced
+# Obsidian vault and is symlinked into ~/GITHUB by bootstrap.sh (see the
+# "WDI-Notes vault symlink" step). Cloning it here would recreate a duplicate,
+# un-synced second copy — the exact problem the symlink avoids.
+# Add other repos with: clone_or_update "<repo>"
