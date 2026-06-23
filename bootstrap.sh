@@ -352,6 +352,25 @@ else
   fail "macOS settings (check scripts/macos.sh)"
 fi
 
+# ── CAPSLOCK → Escape (hidutil LaunchAgent) ───────────────────────────────────
+LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+CAPSLOCK_PLIST="com.local.capslock-to-escape.plist"
+log "CAPSLOCK → Escape..."
+if $DRY_RUN; then
+  dry "link $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST -> $DOTFILES/$CAPSLOCK_PLIST"
+  dry "launchctl load $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"
+else
+  mkdir -p "$LAUNCH_AGENTS_DIR"
+  if backup_and_link "$DOTFILES/$CAPSLOCK_PLIST" "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"; then
+    ok "Symlink $CAPSLOCK_PLIST"
+    launchctl load "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST" 2>/dev/null \
+      && ok "LaunchAgent loaded (CAPSLOCK → Escape active)" \
+      || ok "LaunchAgent registered (active on next login)"
+  else
+    fail "Symlink $CAPSLOCK_PLIST"
+  fi
+fi
+
 # ── Dock ──────────────────────────────────────────────────────────────────────
 log "Dock..."
 if $DRY_RUN; then
