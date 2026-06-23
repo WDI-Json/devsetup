@@ -49,5 +49,6 @@
   "zenMode.fullScreen": false,
   "[csv][yaml][plaintext]": {
     "editor.wordWrap": "off"
-  }
+  },
+  "workbench.preferredLightColorTheme": "Dark 2026"
 }

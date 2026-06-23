@@ -56,3 +56,9 @@ eval "$(zoxide init --cmd cd zsh)"
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/wdijks/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+# Added by dbt Fusion extension (ensure dbt binary dir on PATH)
+if [[ ":$PATH:" != *":/Users/wdijks/.local/bin:"* ]]; then
+  export PATH=/Users/wdijks/.local/bin:"$PATH"
+fi
+# Added by dbt Fusion extension
+alias dbtf=/Users/wdijks/.local/bin/dbt
