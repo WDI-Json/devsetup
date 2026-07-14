@@ -59,7 +59,7 @@ brew "pulumi"
 
 # Apps
 cask "claude-code"
-cask "ghostty"
+cask "wezterm"
 cask "google-chrome"
 cask "obsidian"
 cask "rancher"
@@ -67,7 +67,6 @@ cask "rectangle"
 cask "slack"
 cask "tableplus"
 cask "visual-studio-code"
-cask "wispr-flow"
 
 # VS Code extensions
 vscode "anthropic.claude-code"

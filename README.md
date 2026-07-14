@@ -38,8 +38,8 @@ Windows package parity-validatie wordt apart bijgehouden in `windows-package-val
 │   ├── keybindings.json  # VS Code keybindings (symlinked)
 │   └── extensions.txt    # Extensions installed via code --install-extension
 ├── neovim/               # Neovim config (symlinked to ~/.config/nvim)
-├── ghostty/
-│   └── config            # Ghostty config (symlinked)
+├── wezterm/
+│   └── wezterm.lua       # WezTerm config (symlinked)
 ├── mise/
 │   └── config.toml       # mise tool versions: Python, Node, Java LTS
 ├── scripts/
@@ -89,7 +89,7 @@ Changes to dotfiles in this repo take effect immediately since the live config f
 | macOS | `~/Library/Application Support/Code/User/settings.json` | `vscode/settings.json` |
 | macOS | `~/Library/Application Support/Code/User/keybindings.json` | `vscode/keybindings.json` |
 | macOS | `~/.config/nvim` | `neovim/` |
-| macOS | `~/Library/Application Support/com.mitchellh.ghostty/config` | `ghostty/config` |
+| macOS | `~/.wezterm.lua` | `wezterm/wezterm.lua` |
 | macOS | `~/.config/mise/config.toml` | `mise/config.toml` |
 | macOS/Windows | `.git/hooks/commit-msg` | `hooks/commit-msg` |
 

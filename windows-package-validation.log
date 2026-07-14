@@ -4,8 +4,8 @@ Scope: dotfiles/Brewfile compared with dotfiles/Wingetfile
 
 Summary
 - Brewfile entries audited: 51 (41 brew + 10 cask)
-- Wingetfile entries present: 8
-- Result: core tools are covered, but many Brewfile packages are not yet mapped in Wingetfile.
+- Wingetfile entries present: 33
+- Result: major Windows parity gaps addressed by adding missing CLI, app, and Kubernetes tooling.
 
 Already covered in Wingetfile
 - Git.Git (brew: gh ecosystem prerequisite via Git)
@@ -16,23 +16,32 @@ Already covered in Wingetfile
 - Docker.DockerDesktop (container runtime)
 - RancherDesktop.RancherDesktop (cask: rancher equivalent)
 - Ollama.Ollama (brew: ollama)
+- Wez.WezTerm (cask: wezterm)
+- Microsoft.PowerToys (cask parity for rectangle/wispr-flow workflows)
+- Google.Chrome, Obsidian.Obsidian, SlackTechnologies.Slack (app parity)
+- sharkdp.bat, DuckDB.cli, sharkdp.fd, junegunn.fzf, jqlang.jq, JesseDuffield.lazygit
+- BurntSushi.ripgrep.MSVC, MikeFarah.yq, ajeetdsouza.zoxide, 7zip.7zip, astral-sh.uv
+- Graphviz.Graphviz, PlantUML.PlantUML
+- Kubernetes.kubectl, Derailed.k9s, Kubernetes.minikube, tilt-dev.Tilt
+- Gyan.FFmpeg, ImageMagick.ImageMagick, oschwartz10612.Poppler
 
 Packages that should be changed/reviewed (Windows compatibility gaps)
 1) macOS-only app/tooling entries in Brewfile
-   - cask "ghostty"      -> recommend Windows Terminal or WezTerm
+   - cask "ghostty"      -> replaced with cask "wezterm"
    - brew "dockutil"     -> no Windows equivalent needed (remove from Windows parity scope)
-   - cask "rectangle"    -> recommend Microsoft.PowerToys (FancyZones)
-   - cask "wispr-flow"   -> recommend Microsoft.PowerToys Advanced Paste/Voice alternatives
+   - cask "rectangle"    -> mapped to Microsoft.PowerToys (FancyZones)
+   - cask "wispr-flow"   -> removed; mapped workflows to Microsoft.PowerToys
 
 2) package format/version pins that are not portable as-is
    - brew "icu4c@77"     -> avoid strict macOS formula pin for Windows parity; use runtime-managed dependency where needed
 
-3) likely-missing Windows parity packages to add to Wingetfile
-   - bat, duckdb, fd, fzf, jq, lazygit, ripgrep, yq, zoxide
-   - sevenzip, uv, graphviz, plantuml
-   - kubectl, k9s, minikube, tilt
-   - ffmpeg, imagemagick, poppler
-   - google-chrome, obsidian, slack
+3) remaining parity candidates not added in this pass
+   - yazi
+   - ffmpegthumbnailer
+   - pulumi
+   - promptfoo
+   - tableplus
+   - claude-code
 
 4) specialized libraries from Brewfile that should not be enforced via Wingetfile unless explicitly required
    - glib, harfbuzz, librsvg, open-mpi, utf8proc, zstd, openssl@3
@@ -40,6 +49,7 @@ Packages that should be changed/reviewed (Windows compatibility gaps)
 
 Notes
 - This log is a repository-level validation record requested for Windows support review.
+- Implemented request: convert Ghostty to WezTerm, remove Wispr Flow, add Microsoft.PowerToys, add missing Windows parity package IDs.
 - Before finalizing Wingetfile updates, run validation on a Windows host:
   - winget show <PACKAGE_ID>
   - winget install --id <PACKAGE_ID> --exact

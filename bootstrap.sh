@@ -415,17 +415,16 @@ else
   fi
 fi
 
-# ── Ghostty config symlink ────────────────────────────────────────────────────
-GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
-log "Ghostty config..."
+# ── WezTerm config symlink ────────────────────────────────────────────────────
+WEZTERM_FILE="$HOME/.wezterm.lua"
+log "WezTerm config..."
 if $DRY_RUN; then
-  dry "link Ghostty config -> $REPO_DIR/ghostty/config"
+  dry "link WezTerm config -> $REPO_DIR/wezterm/wezterm.lua"
 else
-  mkdir -p "$GHOSTTY_DIR"
-  if backup_and_link "$REPO_DIR/ghostty/config" "$GHOSTTY_DIR/config"; then
-    ok "Symlink Ghostty config"
+  if backup_and_link "$REPO_DIR/wezterm/wezterm.lua" "$WEZTERM_FILE"; then
+    ok "Symlink WezTerm config"
   else
-    fail "Symlink Ghostty config"
+    fail "Symlink WezTerm config"
   fi
 fi
 

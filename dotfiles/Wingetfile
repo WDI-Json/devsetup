@@ -7,3 +7,38 @@ Neovim.Neovim
 Docker.DockerDesktop
 RancherDesktop.RancherDesktop
 Ollama.Ollama
+Wez.WezTerm
+Microsoft.PowerToys
+
+# CLI parity
+sharkdp.bat
+DuckDB.cli
+sharkdp.fd
+junegunn.fzf
+jqlang.jq
+JesseDuffield.lazygit
+BurntSushi.ripgrep.MSVC
+MikeFarah.yq
+ajeetdsouza.zoxide
+7zip.7zip
+astral-sh.uv
+
+# Diagrams and docs
+Graphviz.Graphviz
+PlantUML.PlantUML
+
+# Kubernetes & containers parity
+Kubernetes.kubectl
+Derailed.k9s
+Kubernetes.minikube
+tilt-dev.Tilt
+
+# Media parity
+Gyan.FFmpeg
+ImageMagick.ImageMagick
+oschwartz10612.Poppler
+
+# App parity
+Google.Chrome
+Obsidian.Obsidian
+SlackTechnologies.Slack
