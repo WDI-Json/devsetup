@@ -8,7 +8,7 @@ Reproducible setup for a software/data engineering environment on macOS and Wind
 git clone git@github.com:WDI-Json/devsetup.git ~/GITHUB/devsetup
 cd ~/GITHUB/devsetup
 bash bootstrap.sh --dry-run   # controleer eerst wat er gaat gebeuren
-bash bootstrap.sh             # voer daarna echt uit
+bash bootstrap.sh             # daarna zonder --dry-run echt uitvoeren
 ```
 
 > macOS: installeer Xcode CLT wanneer daarom gevraagd wordt en wacht tot dat klaar is voordat het script verdergaat.
