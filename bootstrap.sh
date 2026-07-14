@@ -42,7 +42,7 @@ install_winget_pkg() {
     ok "winget package already installed: $pkg"
     return 0
   fi
-  if winget install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
+  if winget install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
     ok "winget package installed: $pkg"
     return 0
   fi
@@ -64,7 +64,7 @@ install_powershell_module() {
   fi
 
   local install_cmd="Install-Module -Name \"$module\" -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
-  if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" &>/dev/null; then
+  if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" >/dev/null 2>>"$LOG"; then
     ok "PowerShell module installed: $module"
     return 0
   fi
