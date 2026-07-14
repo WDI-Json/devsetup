@@ -57,13 +57,13 @@ install_powershell_module() {
     return 1
   fi
 
-  local check_cmd="if (Get-Module -ListAvailable -Name '$module') { exit 0 } else { exit 1 }"
+  local check_cmd="if (Get-Module -ListAvailable -Name \"$module\") { exit 0 } else { exit 1 }"
   if powershell.exe -NoProfile -NonInteractive -Command "$check_cmd" &>/dev/null; then
     ok "PowerShell module already installed: $module"
     return 0
   fi
 
-  local install_cmd="\$ProgressPreference='SilentlyContinue'; Install-Module -Name '$module' -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  local install_cmd="Install-Module -Name \"$module\" -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
   if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" &>/dev/null; then
     ok "PowerShell module installed: $module"
     return 0

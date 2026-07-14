@@ -13,7 +13,7 @@ bash bootstrap.sh             # voer daarna echt uit
 
 > macOS: installeer Xcode CLT wanneer daarom gevraagd wordt en wacht tot dat klaar is voordat het script verdergaat.
 >
-> Windows: run het script vanuit een Bash-shell (bijv. Git Bash). `bootstrap.sh` gebruikt automatisch `winget` en probeert ook WSL + Ubuntu te installeren.
+> Windows: run het script vanuit een Bash-shell (bijv. Git Bash), en zorg dat Git Bash eerst geïnstalleerd is. `bootstrap.sh` gebruikt automatisch `winget` en probeert ook WSL + Ubuntu te installeren.
 
 Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 Windows package parity-validatie wordt apart bijgehouden in `windows-package-validation.log`.
