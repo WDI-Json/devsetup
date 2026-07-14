@@ -50,6 +50,10 @@ install_winget_pkg() {
   return 1
 }
 
+wsl_has_ubuntu() {
+  wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'
+}
+
 bootstrap_windows() {
   log "Detected Windows — using winget-based bootstrap"
   if ! command -v winget &>/dev/null; then
@@ -79,7 +83,7 @@ bootstrap_windows() {
     dry "winget install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
     dry "wsl --install -d Ubuntu"
   elif command -v wsl.exe &>/dev/null; then
-    if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
+    if wsl_has_ubuntu; then
       ok "Ubuntu already present in WSL"
     else
       wsl_enabled=false
@@ -95,6 +99,7 @@ bootstrap_windows() {
       fi
 
       ubuntu_installed=false
+      # Try generic ID first, then explicit current LTS package ID as fallback.
       for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
         if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
           ubuntu_installed=true
@@ -110,7 +115,7 @@ bootstrap_windows() {
         fail "Ubuntu package install via winget failed"
       fi
 
-      if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
+      if wsl_has_ubuntu; then
         ok "Ubuntu already registered in WSL"
       elif wsl.exe --install -d Ubuntu &>/dev/null; then
         ok "Ubuntu registered in WSL"
