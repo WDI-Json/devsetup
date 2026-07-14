@@ -79,11 +79,14 @@ bootstrap_windows() {
     dry "winget install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
     dry "wsl --install -d Ubuntu"
   elif command -v wsl.exe &>/dev/null; then
-    if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -iq '^Ubuntu'; then
+    if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
       ok "Ubuntu already present in WSL"
     else
       wsl_enabled=false
-      if wsl.exe --status &>/dev/null || wsl.exe --install --no-distribution &>/dev/null; then
+      if wsl.exe --status &>/dev/null; then
+        wsl_enabled=true
+        ok "WSL already enabled"
+      elif wsl.exe --install --no-distribution &>/dev/null; then
         wsl_enabled=true
         ok "WSL installed/enabled"
       fi
@@ -93,8 +96,11 @@ bootstrap_windows() {
 
       ubuntu_installed=false
       for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
-        if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null \
-          || winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
+        if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
+          ubuntu_installed=true
+          ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
+          break
+        elif winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
           ubuntu_installed=true
           ok "Ubuntu package installed via winget ($ubuntu_pkg)"
           break
@@ -104,7 +110,11 @@ bootstrap_windows() {
         fail "Ubuntu package install via winget failed"
       fi
 
-      if wsl.exe --install -d Ubuntu &>/dev/null || wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -iq '^Ubuntu'; then
+      if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
+        ok "Ubuntu already registered in WSL"
+      elif wsl.exe --install -d Ubuntu &>/dev/null; then
+        ok "Ubuntu registered in WSL"
+      elif wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
         ok "Ubuntu registered in WSL"
       else
         fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
@@ -148,10 +158,10 @@ elif [[ "$OS_TYPE" == "unsupported" ]]; then
 fi
 
 # ── Interactive prompts ───────────────────────────────────────────────────────
-if ! $DRY_RUN; then
+if [[ "$OS_TYPE" == "macos" && "$DRY_RUN" == false ]]; then
   printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
   read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
-  read -rp "  Change hostname? [y/N]: " change_hostname
+  read -rp "  Change macOS hostname? [y/N]: " change_hostname
   if [[ "$change_hostname" =~ ^[Yy] ]]; then
     read -rp "  New hostname: " MAC_HOSTNAME
     export MAC_HOSTNAME
