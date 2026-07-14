@@ -28,18 +28,6 @@ else
   echo "" >> "$LOG"
 fi
 
-# ── Interactive prompts ───────────────────────────────────────────────────────
-if ! $DRY_RUN; then
-  printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
-  read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
-  read -rp "  Change Mac hostname? [y/N]: " change_hostname
-  if [[ "$change_hostname" =~ ^[Yy] ]]; then
-    read -rp "  New hostname: " MAC_HOSTNAME
-    export MAC_HOSTNAME
-  fi
-  echo ""
-fi
-
 log()  { printf '\e[1;34m==>\e[0m %s\n' "$*"; }
 ok()   { $DRY_RUN || echo "[OK]     $*" >> "$LOG"; }
 dry()  { printf '  \e[90mwould: %s\e[0m\n' "$*"; }
@@ -163,7 +151,7 @@ fi
 if ! $DRY_RUN; then
   printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
   read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
-  read -rp "  Change Mac hostname? [y/N]: " change_hostname
+  read -rp "  Change hostname? [y/N]: " change_hostname
   if [[ "$change_hostname" =~ ^[Yy] ]]; then
     read -rp "  New hostname: " MAC_HOSTNAME
     export MAC_HOSTNAME

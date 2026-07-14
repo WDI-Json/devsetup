@@ -23,7 +23,7 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 ├── bootstrap.sh          # Main installer — run this once
 ├── dotfiles/
 │   ├── .zshrc            # Shell config (symlinked to ~/.zshrc)
-│   └── Brewfile          # All CLI tools and apps via Homebrew
+│   ├── Brewfile          # All CLI tools and apps via Homebrew
 │   └── Wingetfile        # Core Windows packages via winget
 ├── vscode/
 │   ├── settings.json     # VS Code user settings (symlinked)
