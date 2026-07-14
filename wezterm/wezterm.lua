@@ -1,3 +1,5 @@
+local wezterm = require "wezterm"
+
 return {
   font = wezterm.font("CaskaydiaMono Nerd Font Mono"),
   font_size = 16.0,
