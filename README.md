@@ -1,6 +1,6 @@
 # devsetup
 
-Reproducible Mac setup for a software/data engineering environment.
+Reproducible setup for a software/data engineering environment on macOS and Windows.
 
 ## Quick Start
 
@@ -12,6 +12,8 @@ bash bootstrap.sh             # voer daarna echt uit
 ```
 
 > Op een gloednieuwe Mac: installeer Xcode CLT wanneer daarom gevraagd wordt en wacht tot dat klaar is voordat het script verdergaat.
+>
+> Op Windows gebruikt `bootstrap.sh` automatisch `winget` en probeert het ook WSL + Ubuntu te installeren.
 
 Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 
@@ -22,6 +24,7 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 ├── dotfiles/
 │   ├── .zshrc            # Shell config (symlinked to ~/.zshrc)
 │   └── Brewfile          # All CLI tools and apps via Homebrew
+│   └── Wingetfile        # Core Windows packages via winget
 ├── vscode/
 │   ├── settings.json     # VS Code user settings (symlinked)
 │   ├── keybindings.json  # VS Code keybindings (symlinked)
@@ -42,6 +45,11 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 
 ## What bootstrap.sh does
 
+The script auto-detects your OS:
+
+- **macOS**: runs the original Homebrew/macOS flow
+- **Windows**: runs a winget-based flow and attempts WSL + Ubuntu setup
+
 1. Install Xcode Command Line Tools (if missing)
 2. Install Homebrew (if missing)
 3. `brew bundle` — install all packages, casks, and VS Code extensions
@@ -53,6 +61,13 @@ Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn.
 9. Apply macOS system settings via `scripts/macos.sh`
 10. Configure Dock via `scripts/dock.sh`
 11. Clone personal repositories via `scripts/repos.sh`
+
+### Windows flow
+
+1. Check `winget` availability
+2. Install packages listed in `dotfiles/Wingetfile`
+3. Enable/install WSL where needed
+4. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
 
 ## Symlinks
 

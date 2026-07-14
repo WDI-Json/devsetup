@@ -6,9 +6,19 @@ DOTFILES="$REPO_DIR/dotfiles"
 VSCODE_SRC="$REPO_DIR/vscode"
 VSCODE_USER="$HOME/Library/Application Support/Code/User"
 LOG="$REPO_DIR/log.txt"
+WINGET_FILE="$DOTFILES/Wingetfile"
+OS_TYPE=""
 
 DRY_RUN=false
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
+
+if [[ "${OS:-}" == "Windows_NT" ]]; then
+  OS_TYPE="windows"
+elif [[ "$(uname -s)" == "Darwin" ]]; then
+  OS_TYPE="macos"
+else
+  OS_TYPE="unsupported"
+fi
 
 if $DRY_RUN; then
   printf '\e[1;33m=== DRY RUN — no changes will be made ===\e[0m\n\n'
@@ -38,6 +48,100 @@ fail() {
   $DRY_RUN || echo "[FAILED] $*" >> "$LOG"
 }
 
+install_winget_pkg() {
+  local pkg="$1"
+  if winget list --id "$pkg" --exact --accept-source-agreements &>/dev/null; then
+    ok "winget package already installed: $pkg"
+    return 0
+  fi
+  if winget install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
+    ok "winget package installed: $pkg"
+    return 0
+  fi
+  fail "winget package install failed: $pkg"
+  return 1
+}
+
+bootstrap_windows() {
+  log "Detected Windows — using winget-based bootstrap"
+  if ! command -v winget &>/dev/null; then
+    fail "winget not found. Install App Installer from Microsoft Store and re-run."
+    exit 1
+  fi
+  ok "winget available"
+
+  log "Installing winget packages from dotfiles/Wingetfile..."
+  if [[ ! -f "$WINGET_FILE" ]]; then
+    fail "Missing $WINGET_FILE"
+  elif $DRY_RUN; then
+    while IFS= read -r pkg; do
+      [[ -z "$pkg" || "$pkg" == \#* ]] && continue
+      dry "winget install --id $pkg --exact --accept-source-agreements --accept-package-agreements"
+    done < "$WINGET_FILE"
+  else
+    while IFS= read -r pkg; do
+      [[ -z "$pkg" || "$pkg" == \#* ]] && continue
+      install_winget_pkg "$pkg"
+    done < "$WINGET_FILE"
+  fi
+
+  log "Windows Subsystem for Linux (WSL) + Ubuntu..."
+  if $DRY_RUN; then
+    dry "wsl --install --no-distribution"
+    dry "winget install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
+    dry "wsl --install -d Ubuntu"
+  elif command -v wsl.exe &>/dev/null; then
+    if wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -iq '^Ubuntu'; then
+      ok "Ubuntu already present in WSL"
+    else
+      wsl_enabled=false
+      if wsl.exe --status &>/dev/null || wsl.exe --install --no-distribution &>/dev/null; then
+        wsl_enabled=true
+        ok "WSL installed/enabled"
+      fi
+      if ! $wsl_enabled; then
+        fail "Unable to enable WSL (run elevated PowerShell and re-run bootstrap)"
+      fi
+
+      ubuntu_installed=false
+      for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
+        if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null \
+          || winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
+          ubuntu_installed=true
+          ok "Ubuntu package installed via winget ($ubuntu_pkg)"
+          break
+        fi
+      done
+      if ! $ubuntu_installed; then
+        fail "Ubuntu package install via winget failed"
+      fi
+
+      if wsl.exe --install -d Ubuntu &>/dev/null || wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -iq '^Ubuntu'; then
+        ok "Ubuntu registered in WSL"
+      else
+        fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
+      fi
+    fi
+  else
+    fail "wsl.exe not found on PATH"
+  fi
+
+  echo ""
+  if ! $DRY_RUN; then
+    failure_count=$(grep -c "^\[FAILED\]" "$LOG" 2>/dev/null || true)
+    failure_count="${failure_count:-0}"
+    if [[ "$failure_count" -gt 0 ]]; then
+      printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
+      grep "^\[FAILED\]" "$LOG"
+    else
+      printf '\e[1;32mWindows bootstrap completed successfully\e[0m\n'
+    fi
+  else
+    printf '\e[1;33mDry run complete — run without --dry-run to apply.\e[0m\n'
+  fi
+  exit 0
+}
+
 backup_and_link() {
   local src="$1" dst="$2"
   if [[ -e "$dst" && ! -L "$dst" ]]; then
@@ -46,6 +150,26 @@ backup_and_link() {
   fi
   ln -sf "$src" "$dst"
 }
+
+# ── OS-specific routing ─────────────────────────────────────────────────────────
+if [[ "$OS_TYPE" == "windows" ]]; then
+  bootstrap_windows
+elif [[ "$OS_TYPE" == "unsupported" ]]; then
+  fail "Unsupported OS. This bootstrap currently supports macOS and Windows."
+  exit 1
+fi
+
+# ── Interactive prompts ───────────────────────────────────────────────────────
+if ! $DRY_RUN; then
+  printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
+  read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
+  read -rp "  Change Mac hostname? [y/N]: " change_hostname
+  if [[ "$change_hostname" =~ ^[Yy] ]]; then
+    read -rp "  New hostname: " MAC_HOSTNAME
+    export MAC_HOSTNAME
+  fi
+  echo ""
+fi
 
 # ── Xcode Command Line Tools ──────────────────────────────────────────────────
 log "Checking Xcode Command Line Tools..."
