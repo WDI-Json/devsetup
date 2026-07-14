@@ -50,6 +50,29 @@ install_winget_pkg() {
   return 1
 }
 
+install_powershell_module() {
+  local module="$1"
+  if ! command -v powershell.exe &>/dev/null; then
+    fail "PowerShell not found. Cannot install module: $module"
+    return 1
+  fi
+
+  local check_cmd="if (Get-Module -ListAvailable -Name '$module') { exit 0 } else { exit 1 }"
+  if powershell.exe -NoProfile -NonInteractive -Command "$check_cmd" &>/dev/null; then
+    ok "PowerShell module already installed: $module"
+    return 0
+  fi
+
+  local install_cmd="\$ProgressPreference='SilentlyContinue'; Install-Module -Name '$module' -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" &>/dev/null; then
+    ok "PowerShell module installed: $module"
+    return 0
+  fi
+
+  fail "PowerShell module install failed: $module"
+  return 1
+}
+
 wsl_has_ubuntu() {
   wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'
 }
@@ -75,6 +98,15 @@ bootstrap_windows() {
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
       install_winget_pkg "$pkg"
     done < "$WINGET_FILE"
+  fi
+
+  log "Installing PowerShell modules..."
+  if $DRY_RUN; then
+    dry "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+    dry "Install-Module -Name Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  else
+    install_powershell_module "Az"
+    install_powershell_module "Microsoft.WinGet.Client"
   fi
 
   log "Windows Subsystem for Linux (WSL) + Ubuntu..."

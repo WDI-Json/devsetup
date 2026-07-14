@@ -50,6 +50,7 @@ Packages that should be changed/reviewed (Windows compatibility gaps)
 Notes
 - This log is a repository-level validation record requested for Windows support review.
 - Implemented request: convert Ghostty to WezTerm, remove Wispr Flow, add Microsoft.PowerToys, add missing Windows parity package IDs.
+- Implemented request: Windows bootstrap now installs PowerShell modules `Az` and `Microsoft.WinGet.Client`.
 - Before finalizing Wingetfile updates, run validation on a Windows host:
   - winget show <PACKAGE_ID>
   - winget install --id <PACKAGE_ID> --exact

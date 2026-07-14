@@ -76,8 +76,9 @@ The script auto-detects your OS:
 
 1. Check `winget` availability
 2. Install packages listed in `dotfiles/Wingetfile`
-3. Enable/install WSL where needed
-4. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
+3. Install PowerShell modules: `Az` and `Microsoft.WinGet.Client`
+4. Enable/install WSL where needed
+5. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
 
 ## Symlinks
 
