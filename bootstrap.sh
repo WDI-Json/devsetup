@@ -114,8 +114,6 @@ bootstrap_windows() {
         ok "Ubuntu already registered in WSL"
       elif wsl.exe --install -d Ubuntu &>/dev/null; then
         ok "Ubuntu registered in WSL"
-      elif wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'; then
-        ok "Ubuntu registered in WSL"
       else
         fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
       fi
@@ -158,7 +156,7 @@ elif [[ "$OS_TYPE" == "unsupported" ]]; then
 fi
 
 # ── Interactive prompts ───────────────────────────────────────────────────────
-if [[ "$OS_TYPE" == "macos" && "$DRY_RUN" == false ]]; then
+if [[ "$OS_TYPE" == "macos" ]] && ! $DRY_RUN; then
   printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
   read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
   read -rp "  Change macOS hostname? [y/N]: " change_hostname
