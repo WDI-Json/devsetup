@@ -109,6 +109,15 @@ bootstrap_windows() {
     install_powershell_module "Microsoft.WinGet.Client"
   fi
 
+  log "Windows settings..."
+  if $DRY_RUN; then
+    dry "run scripts/windows.sh (taskbar, Caps Lock, PowerToys Run hotkey)"
+  elif bash "$REPO_DIR/scripts/windows.sh" >>"$LOG" 2>&1; then
+    ok "Windows settings"
+  else
+    fail "Windows settings (check scripts/windows.sh)"
+  fi
+
   log "Windows Subsystem for Linux (WSL) + Ubuntu..."
   if $DRY_RUN; then
     dry "wsl --install --no-distribution"

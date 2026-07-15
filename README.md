@@ -77,8 +77,9 @@ The script auto-detects your OS:
 1. Check `winget` availability
 2. Install packages listed in `dotfiles/Wingetfile`
 3. Install PowerShell modules: `Az` and `Microsoft.WinGet.Client`
-4. Enable/install WSL where needed
-5. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
+4. Apply Windows settings (taskbar left, Caps Lock → Escape, PowerToys Run hotkey `Win+Space`)
+5. Enable/install WSL where needed
+6. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
 
 ## Symlinks
 
@@ -155,4 +156,6 @@ Dry run complete — run without --dry-run to apply.
   - Some macOS settings (keyboard repeat, dark mode) require a logout to take effect
 - Windows:
   - `winget` (App Installer) must be available
+  - Taskbar vertical-left placement depends on Windows version (applies where supported)
+  - PowerToys should be running for Keyboard Manager and PowerToys Run shortcut settings to take effect
   - WSL/Ubuntu setup may require an elevated shell and/or restart before first use
