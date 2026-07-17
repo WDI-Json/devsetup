@@ -158,3 +158,10 @@ Dry run complete — run without --dry-run to apply.
   - Taskbar vertical-left placement depends on Windows version (applies where supported)
   - PowerToys should be running for Keyboard Manager and PowerToys Run shortcut settings to take effect
   - WSL/Ubuntu setup may require an elevated shell and/or restart before first use
+  - If you see errors like `$'\r': command not found` or `set: pipefail: invalid option name`, normalize line endings and retry:
+    ```bash
+    git config core.autocrlf false
+    git rm --cached -r .
+    git reset --hard
+    bash bootstrap.sh
+    ```
