@@ -91,11 +91,13 @@ bootstrap_windows() {
     exit 1
   elif $DRY_RUN; then
     while IFS= read -r pkg; do
+      pkg="${pkg//$'\r'/}"
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
       dry "winget install --id $pkg --exact --accept-source-agreements --accept-package-agreements"
     done < "$WINGET_FILE"
   else
     while IFS= read -r pkg; do
+      pkg="${pkg//$'\r'/}"
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
       install_winget_pkg "$pkg"
     done < "$WINGET_FILE"

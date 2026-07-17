@@ -67,6 +67,7 @@ cask "rectangle"
 cask "slack"
 cask "tableplus"
 cask "visual-studio-code"
+cask "wispr-flow"
 
 # VS Code extensions
 vscode "anthropic.claude-code"

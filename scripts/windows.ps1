@@ -28,7 +28,7 @@ function Read-JsonFile {
 
 # Taskbar left alignment (Windows 11)
 New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -PropertyType DWord -Value 0 -Force | Out-Null
 
 # Taskbar on the left side (vertical) where supported (Windows 10)
 $stuckRectsPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3"
@@ -36,7 +36,7 @@ if (Test-Path $stuckRectsPath) {
   $stuckRects = (Get-ItemProperty -Path $stuckRectsPath -Name Settings -ErrorAction Stop).Settings
   if ($stuckRects.Length -gt 12) {
     $stuckRects[12] = 0
-    Set-ItemProperty -Path $stuckRectsPath -Name Settings -Type Binary -Value $stuckRects
+    Set-ItemProperty -Path $stuckRectsPath -Name Settings -Value $stuckRects
   }
 }
 
