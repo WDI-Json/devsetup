@@ -1,12 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-if ! command -v powershell.exe &>/dev/null; then
-  echo "PowerShell not found."
-  exit 1
-fi
-
-powershell.exe -NoProfile -NonInteractive -Command '
 $ErrorActionPreference = "Stop"
 
 function Set-JsonFile {
@@ -101,4 +92,3 @@ Set-JsonFile -Path $powerToysRunPath -Object $powerToysRun
 Get-Process explorer -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 Start-Process explorer.exe
 Write-Output "Windows settings applied. Restart PowerToys if the new hotkey is not active yet."
-'

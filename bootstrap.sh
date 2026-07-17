@@ -111,11 +111,11 @@ bootstrap_windows() {
 
   log "Windows settings..."
   if $DRY_RUN; then
-    dry "run scripts/windows.sh (taskbar, Caps Lock, PowerToys Run hotkey)"
-  elif bash "$REPO_DIR/scripts/windows.sh" >>"$LOG" 2>&1; then
+    dry "run scripts/windows.ps1 (taskbar, Caps Lock, PowerToys Run hotkey)"
+  elif powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$REPO_DIR/scripts/windows.ps1" >>"$LOG" 2>&1; then
     ok "Windows settings"
   else
-    fail "Windows settings (check scripts/windows.sh)"
+    fail "Windows settings (check scripts/windows.ps1)"
   fi
 
   log "Windows Subsystem for Linux (WSL) + Ubuntu..."
