@@ -4,7 +4,7 @@ Scope: dotfiles/Brewfile compared with dotfiles/Wingetfile
 
 Summary
 - Brewfile entries audited: 51 (41 brew + 10 cask)
-- Wingetfile entries present: 33
+- Wingetfile entries present: 32
 - Result: major Windows parity gaps addressed by adding missing CLI, app, and Kubernetes tooling.
 
 Already covered in Wingetfile
@@ -13,8 +13,7 @@ Already covered in Wingetfile
 - Microsoft.VisualStudioCode (cask: visual-studio-code)
 - JanDeDobbeleer.OhMyPosh (brew: oh-my-posh)
 - Neovim.Neovim (brew: neovim)
-- Docker.DockerDesktop (container runtime)
-- RancherDesktop.RancherDesktop (cask: rancher equivalent)
+- RancherDesktop.RancherDesktop (preferred container runtime; cask: rancher equivalent)
 - Ollama.Ollama (brew: ollama)
 - Wez.WezTerm (cask: wezterm)
 - Microsoft.PowerToys (cask parity for rectangle/wispr-flow workflows)
