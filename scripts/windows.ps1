@@ -89,11 +89,4 @@ if (-not $powerToysRun.properties.OpenPowerLauncher.PSObject.Properties["value"]
 }
 Set-JsonFile -Path $powerToysRunPath -Object $powerToysRun
 
-$explorerRestartDelayMs = 500
-$explorer = Get-Process explorer -ErrorAction SilentlyContinue
-if ($null -ne $explorer) {
-  $explorer | Stop-Process -ErrorAction SilentlyContinue
-  Start-Sleep -Milliseconds $explorerRestartDelayMs
-}
-Start-Process explorer.exe
-Write-Output "Windows settings applied. Restart PowerToys if the new hotkey is not active yet."
+Write-Output "Windows settings applied. Restart Explorer (or sign out and back in) for taskbar changes, and restart PowerToys if the new hotkey is not active yet."

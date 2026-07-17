@@ -88,6 +88,7 @@ bootstrap_windows() {
   log "Installing winget packages from dotfiles/Wingetfile..."
   if [[ ! -f "$WINGET_FILE" ]]; then
     fail "Missing $WINGET_FILE"
+    exit 1
   elif $DRY_RUN; then
     while IFS= read -r pkg; do
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
@@ -131,7 +132,7 @@ bootstrap_windows() {
       if wsl.exe --status &>/dev/null; then
         wsl_enabled=true
         ok "WSL already enabled"
-      elif wsl.exe --install --no-distribution &>/dev/null; then
+      elif wsl.exe --install --no-distribution >/dev/null 2>>"$LOG"; then
         wsl_enabled=true
         ok "WSL installed/enabled"
       fi
@@ -146,7 +147,7 @@ bootstrap_windows() {
           ubuntu_installed=true
           ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
           break
-        elif winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements &>/dev/null; then
+        elif winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
           ubuntu_installed=true
           ok "Ubuntu package installed via winget ($ubuntu_pkg)"
           break
@@ -158,7 +159,7 @@ bootstrap_windows() {
 
       if wsl_has_ubuntu; then
         ok "Ubuntu already registered in WSL"
-      elif wsl.exe --install -d Ubuntu &>/dev/null; then
+      elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG"; then
         ok "Ubuntu registered in WSL"
       else
         fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
@@ -175,13 +176,15 @@ bootstrap_windows() {
     if [[ "$failure_count" -gt 0 ]]; then
       printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
       grep "^\[FAILED\]" "$LOG"
+      exit 1
     else
       printf '\e[1;32mWindows bootstrap completed successfully\e[0m\n'
+      exit 0
     fi
   else
     printf '\e[1;33mDry run complete — run without --dry-run to apply.\e[0m\n'
+    exit 0
   fi
-  exit 0
 }
 
 backup_and_link() {
