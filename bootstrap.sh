@@ -6,9 +6,19 @@ DOTFILES="$REPO_DIR/dotfiles"
 VSCODE_SRC="$REPO_DIR/vscode"
 VSCODE_USER="$HOME/Library/Application Support/Code/User"
 LOG="$REPO_DIR/log.txt"
+WINGET_FILE="$DOTFILES/Wingetfile"
+OS_TYPE=""
 
 DRY_RUN=false
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
+
+if [[ "${OS:-}" == "Windows_NT" ]]; then
+  OS_TYPE="windows"
+elif [[ "$(uname -s)" == "Darwin" ]]; then
+  OS_TYPE="macos"
+else
+  OS_TYPE="unsupported"
+fi
 
 if $DRY_RUN; then
   printf '\e[1;33m=== DRY RUN — no changes will be made ===\e[0m\n\n'
@@ -16,18 +26,6 @@ if $DRY_RUN; then
 else
   echo "Bootstrap log — $(date)" > "$LOG"
   echo "" >> "$LOG"
-fi
-
-# ── Interactive prompts ───────────────────────────────────────────────────────
-if ! $DRY_RUN; then
-  printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
-  read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
-  read -rp "  Change Mac hostname? [y/N]: " change_hostname
-  if [[ "$change_hostname" =~ ^[Yy] ]]; then
-    read -rp "  New hostname: " MAC_HOSTNAME
-    export MAC_HOSTNAME
-  fi
-  echo ""
 fi
 
 log()  { printf '\e[1;34m==>\e[0m %s\n' "$*"; }
@@ -38,6 +36,159 @@ fail() {
   $DRY_RUN || echo "[FAILED] $*" >> "$LOG"
 }
 
+install_winget_pkg() {
+  local pkg="$1"
+  if winget list --id "$pkg" --exact --accept-source-agreements &>/dev/null; then
+    ok "winget package already installed: $pkg"
+    return 0
+  fi
+  if winget install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+    ok "winget package installed: $pkg"
+    return 0
+  fi
+  fail "winget package install failed: $pkg"
+  return 1
+}
+
+install_powershell_module() {
+  local module="$1"
+  if ! command -v powershell.exe &>/dev/null; then
+    fail "PowerShell not found. Cannot install module: $module"
+    return 1
+  fi
+
+  local check_cmd="if (Get-Module -ListAvailable -Name \"$module\") { exit 0 } else { exit 1 }"
+  if powershell.exe -NoProfile -NonInteractive -Command "$check_cmd" &>/dev/null; then
+    ok "PowerShell module already installed: $module"
+    return 0
+  fi
+
+  local install_cmd="Install-Module -Name \"$module\" -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" >/dev/null 2>>"$LOG"; then
+    ok "PowerShell module installed: $module"
+    return 0
+  fi
+
+  fail "PowerShell module install failed: $module"
+  return 1
+}
+
+wsl_has_ubuntu() {
+  wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'
+}
+
+bootstrap_windows() {
+  log "Detected Windows — using winget-based bootstrap"
+  if ! command -v winget &>/dev/null; then
+    fail "winget not found. Install App Installer from Microsoft Store and re-run."
+    exit 1
+  fi
+  ok "winget available"
+
+  log "Installing winget packages from dotfiles/Wingetfile..."
+  if [[ ! -f "$WINGET_FILE" ]]; then
+    fail "Missing $WINGET_FILE"
+    exit 1
+  elif $DRY_RUN; then
+    while IFS= read -r pkg; do
+      pkg="${pkg//$'\r'/}"
+      [[ -z "$pkg" || "$pkg" == \#* ]] && continue
+      dry "winget install --id $pkg --exact --accept-source-agreements --accept-package-agreements"
+    done < "$WINGET_FILE"
+  else
+    while IFS= read -r pkg; do
+      pkg="${pkg//$'\r'/}"
+      [[ -z "$pkg" || "$pkg" == \#* ]] && continue
+      install_winget_pkg "$pkg"
+    done < "$WINGET_FILE"
+  fi
+
+  log "Installing PowerShell modules..."
+  if $DRY_RUN; then
+    dry "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+    dry "Install-Module -Name Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  else
+    install_powershell_module "Az"
+    install_powershell_module "Microsoft.WinGet.Client"
+  fi
+
+  log "Windows settings..."
+  if $DRY_RUN; then
+    dry "run scripts/windows.ps1 (taskbar, Caps Lock, PowerToys Run hotkey)"
+  elif powershell.exe -NoProfile -NonInteractive -File "$REPO_DIR/scripts/windows.ps1" >>"$LOG" 2>&1; then
+    ok "Windows settings"
+  else
+    fail "Windows settings (check scripts/windows.ps1)"
+  fi
+
+  log "Windows Subsystem for Linux (WSL) + Ubuntu..."
+  if $DRY_RUN; then
+    dry "wsl --install --no-distribution"
+    dry "winget install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
+    dry "wsl --install -d Ubuntu"
+  elif command -v wsl.exe &>/dev/null; then
+    if wsl_has_ubuntu; then
+      ok "Ubuntu already present in WSL"
+    else
+      wsl_enabled=false
+      if wsl.exe --status &>/dev/null; then
+        wsl_enabled=true
+        ok "WSL already enabled"
+      elif wsl.exe --install --no-distribution >/dev/null 2>>"$LOG"; then
+        wsl_enabled=true
+        ok "WSL installed/enabled"
+      fi
+      if ! $wsl_enabled; then
+        fail "Unable to enable WSL (run elevated PowerShell and re-run bootstrap)"
+      fi
+
+      ubuntu_installed=false
+      # Try generic ID first, then explicit current LTS package ID as fallback.
+      for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
+        if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
+          ubuntu_installed=true
+          ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
+          break
+        elif winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+          ubuntu_installed=true
+          ok "Ubuntu package installed via winget ($ubuntu_pkg)"
+          break
+        fi
+      done
+      if ! $ubuntu_installed; then
+        fail "Ubuntu package install via winget failed"
+      fi
+
+      if wsl_has_ubuntu; then
+        ok "Ubuntu already registered in WSL"
+      elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG"; then
+        ok "Ubuntu registered in WSL"
+      else
+        fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
+      fi
+    fi
+  else
+    fail "wsl.exe not found on PATH"
+  fi
+
+  echo ""
+  if ! $DRY_RUN; then
+    failure_count=$(grep -c "^\[FAILED\]" "$LOG" 2>/dev/null || true)
+    failure_count="${failure_count:-0}"
+    if [[ "$failure_count" -gt 0 ]]; then
+      printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
+      grep "^\[FAILED\]" "$LOG"
+      exit 1
+    else
+      printf '\e[1;32mWindows bootstrap completed successfully\e[0m\n'
+      exit 0
+    fi
+  else
+    printf '\e[1;33mDry run complete — run without --dry-run to apply.\e[0m\n'
+    exit 0
+  fi
+}
+
 backup_and_link() {
   local src="$1" dst="$2"
   if [[ -e "$dst" && ! -L "$dst" ]]; then
@@ -46,6 +197,26 @@ backup_and_link() {
   fi
   ln -sf "$src" "$dst"
 }
+
+# ── OS-specific routing ─────────────────────────────────────────────────────────
+if [[ "$OS_TYPE" == "windows" ]]; then
+  bootstrap_windows
+elif [[ "$OS_TYPE" == "unsupported" ]]; then
+  fail "Unsupported OS. This bootstrap currently supports macOS and Windows."
+  exit 1
+fi
+
+# ── Interactive prompts ───────────────────────────────────────────────────────
+if [[ "$OS_TYPE" == "macos" ]] && ! $DRY_RUN; then
+  printf '\e[1;36m==>\e[0m Setup — answer a few questions or press Enter for defaults\n'
+  read -rp "  SSH key email/comment (leave blank for none): " SSH_EMAIL
+  read -rp "  Change macOS hostname? [y/N]: " change_hostname
+  if [[ "$change_hostname" =~ ^[Yy] ]]; then
+    read -rp "  New hostname: " MAC_HOSTNAME
+    export MAC_HOSTNAME
+  fi
+  echo ""
+fi
 
 # ── Xcode Command Line Tools ──────────────────────────────────────────────────
 log "Checking Xcode Command Line Tools..."
@@ -290,17 +461,16 @@ else
   fi
 fi
 
-# ── Ghostty config symlink ────────────────────────────────────────────────────
-GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
-log "Ghostty config..."
+# ── WezTerm config symlink ────────────────────────────────────────────────────
+WEZTERM_FILE="$HOME/.wezterm.lua"
+log "WezTerm config..."
 if $DRY_RUN; then
-  dry "link Ghostty config -> $REPO_DIR/ghostty/config"
+  dry "link WezTerm config -> $REPO_DIR/wezterm/wezterm.lua"
 else
-  mkdir -p "$GHOSTTY_DIR"
-  if backup_and_link "$REPO_DIR/ghostty/config" "$GHOSTTY_DIR/config"; then
-    ok "Symlink Ghostty config"
+  if backup_and_link "$REPO_DIR/wezterm/wezterm.lua" "$WEZTERM_FILE"; then
+    ok "Symlink WezTerm config"
   else
-    fail "Symlink Ghostty config"
+    fail "Symlink WezTerm config"
   fi
 fi
 

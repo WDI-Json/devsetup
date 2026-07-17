@@ -59,7 +59,7 @@ brew "pulumi"
 
 # Apps
 cask "claude-code"
-cask "ghostty"
+cask "wezterm"
 cask "google-chrome"
 cask "obsidian"
 cask "rancher"
