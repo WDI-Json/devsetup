@@ -577,7 +577,25 @@ if [[ "$OS_TYPE" == "windows" ]]; then
     elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
       PROTO_CMD="$HOME/.proto/bin/proto.exe"
     fi
-    
+
+    # proto is not available on winget; install it via its official PowerShell script
+    if [[ -z "$PROTO_CMD" ]]; then
+      log "proto not found — installing via official installer..."
+      if powershell.exe -NoProfile -NonInteractive -Command "irm https://moonrepo.dev/install/proto.ps1 | iex" </dev/null; then
+        ok "proto installed"
+      else
+        fail "proto install (installer script failed)"
+      fi
+      # Re-detect after install
+      if command -v proto &>/dev/null; then
+        PROTO_CMD="proto"
+      elif [[ -f "${USERPROFILE:-$HOME}/.proto/bin/proto.exe" ]]; then
+        PROTO_CMD="${USERPROFILE:-$HOME}/.proto/bin/proto.exe"
+      elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
+        PROTO_CMD="$HOME/.proto/bin/proto.exe"
+      fi
+    fi
+
     if [[ -n "$PROTO_CMD" ]]; then
       log "Installing tools listed in proto/.prototools (Python, Node, Java)..."
       if "$PROTO_CMD" install --yes; then
