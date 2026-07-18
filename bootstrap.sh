@@ -87,6 +87,59 @@ wsl_has_ubuntu() {
   wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'
 }
 
+# Runs the WSL + Ubuntu installation. Intended to be called in a background
+# subshell so it overlaps with the winget package installs. Stdout is captured
+# by the caller and replayed after the wait.
+_wsl_setup() {
+  if ! command -v wsl.exe &>/dev/null; then
+    fail "wsl.exe not found on PATH"
+    return 1
+  fi
+  if wsl_has_ubuntu; then
+    ok "Ubuntu already present in WSL"
+    return 0
+  fi
+
+  local wsl_enabled=false
+  if wsl.exe --status &>/dev/null; then
+    wsl_enabled=true
+    ok "WSL already enabled"
+  elif wsl.exe --install --no-distribution >/dev/null 2>>"$LOG"; then
+    wsl_enabled=true
+    ok "WSL installed/enabled"
+  fi
+  if ! $wsl_enabled; then
+    fail "Unable to enable WSL (run elevated PowerShell and re-run bootstrap)"
+    return 1
+  fi
+
+  local ubuntu_installed=false
+  # Try generic ID first, then explicit current LTS package ID as fallback.
+  for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
+    if $WINGET list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
+      ubuntu_installed=true
+      ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
+      break
+    elif $WINGET install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+      ubuntu_installed=true
+      ok "Ubuntu package installed via winget ($ubuntu_pkg)"
+      break
+    fi
+  done
+  if ! $ubuntu_installed; then
+    fail "Ubuntu package install via winget failed"
+    return 1
+  fi
+
+  if wsl_has_ubuntu; then
+    ok "Ubuntu already registered in WSL"
+  elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG"; then
+    ok "Ubuntu registered in WSL"
+  else
+    fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
+  fi
+}
+
 bootstrap_windows() {
   log "Detected Windows — using winget-based bootstrap"
   if ! command -v "$WINGET" &>/dev/null; then
@@ -94,6 +147,16 @@ bootstrap_windows() {
     exit 1
   fi
   ok "winget available"
+
+  # Start WSL + Ubuntu setup in the background so it runs in parallel with the
+  # winget package and PowerShell module installs below.
+  local wsl_out wsl_pid=""
+  wsl_out="$(mktemp)"
+  if ! $DRY_RUN; then
+    log "Windows Subsystem for Linux (WSL) + Ubuntu... [running in background]"
+    _wsl_setup >"$wsl_out" 2>&1 &
+    wsl_pid=$!
+  fi
 
   log "Installing winget packages from dotfiles/Wingetfile..."
   if [[ ! -f "$WINGET_FILE" ]]; then
@@ -131,55 +194,18 @@ bootstrap_windows() {
     fail "Windows settings (check scripts/windows.ps1)"
   fi
 
-  log "Windows Subsystem for Linux (WSL) + Ubuntu..."
   if $DRY_RUN; then
+    log "Windows Subsystem for Linux (WSL) + Ubuntu..."
     dry "wsl --install --no-distribution"
-    dry "winget install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
+    dry "$WINGET install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
     dry "wsl --install -d Ubuntu"
-  elif command -v wsl.exe &>/dev/null; then
-    if wsl_has_ubuntu; then
-      ok "Ubuntu already present in WSL"
-    else
-      wsl_enabled=false
-      if wsl.exe --status &>/dev/null; then
-        wsl_enabled=true
-        ok "WSL already enabled"
-      elif wsl.exe --install --no-distribution >/dev/null 2>>"$LOG"; then
-        wsl_enabled=true
-        ok "WSL installed/enabled"
-      fi
-      if ! $wsl_enabled; then
-        fail "Unable to enable WSL (run elevated PowerShell and re-run bootstrap)"
-      fi
-
-      ubuntu_installed=false
-      # Try generic ID first, then explicit current LTS package ID as fallback.
-      for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
-        if $WINGET list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
-          ubuntu_installed=true
-          ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
-          break
-        elif $WINGET install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
-          ubuntu_installed=true
-          ok "Ubuntu package installed via winget ($ubuntu_pkg)"
-          break
-        fi
-      done
-      if ! $ubuntu_installed; then
-        fail "Ubuntu package install via winget failed"
-      fi
-
-      if wsl_has_ubuntu; then
-        ok "Ubuntu already registered in WSL"
-      elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG"; then
-        ok "Ubuntu registered in WSL"
-      else
-        fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
-      fi
-    fi
   else
-    fail "wsl.exe not found on PATH"
+    # Wait for the background WSL job and replay its output inline.
+    log "Windows Subsystem for Linux (WSL) + Ubuntu... [waiting]"
+    wait "$wsl_pid"
+    cat "$wsl_out"
   fi
+  rm -f "$wsl_out"
 
   echo ""
   if ! $DRY_RUN; then
