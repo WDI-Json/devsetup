@@ -4,7 +4,7 @@ set -uo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES="$REPO_DIR/dotfiles"
 VSCODE_SRC="$REPO_DIR/vscode"
-VSCODE_USER="$HOME/Library/Application Support/Code/User"
+VSCODE_USER="" # Set after OS_TYPE is determined
 LOG="$REPO_DIR/log.txt"
 WINGET_FILE="$DOTFILES/Wingetfile"
 OS_TYPE=""
@@ -33,6 +33,19 @@ else
   OS_TYPE="unsupported"
   WINGET=""
 fi
+
+# Set VS Code user config path based on OS
+case "$OS_TYPE" in
+  windows)
+    VSCODE_USER="$APPDATA/Code/User"
+    ;;
+  macos)
+    VSCODE_USER="$HOME/Library/Application Support/Code/User"
+    ;;
+  *)
+    VSCODE_USER="$HOME/.config/Code/User"
+    ;;
+esac
 
 if $DRY_RUN; then
   printf '\e[1;33m=== DRY RUN — no changes will be made ===\e[0m\n\n'
@@ -478,30 +491,61 @@ else
   fail "Symlink ~/.zshrc"
 fi
 
-# ── mise config + tool install ────────────────────────────────────────────────
-MISE_DIR="$HOME/.config/mise"
-log "mise config..."
-if $DRY_RUN; then
-  dry "link ~/.config/mise/config.toml -> $REPO_DIR/mise/config.toml"
-  dry "run 'mise install' to fetch Python, Node, Java"
-else
-  mkdir -p "$MISE_DIR"
-  if backup_and_link "$REPO_DIR/mise/config.toml" "$MISE_DIR/config.toml"; then
-    ok "Symlink mise config"
+# ── proto config + tool install (Windows) ─────────────────────────────────────
+if [[ "$OS_TYPE" == "windows" ]]; then
+  PROTO_DIR="$HOME/.proto"
+  log "proto config..."
+  if $DRY_RUN; then
+    dry "link ~/.proto/.prototools -> $REPO_DIR/proto/.prototools"
+    dry "run 'proto install' to fetch Python, Node, Java"
   else
-    fail "Symlink mise config"
-  fi
-  if command -v mise &>/dev/null; then
-    log "Installing tools listed in mise/config.toml (Python, Node, Java)..."
-    if mise install --yes; then
-      ok "mise tools installed"
-      log "Installed runtimes:"
-      mise current | sed 's/^/  /' | tee -a "$LOG"
+    mkdir -p "$PROTO_DIR"
+    if backup_and_link "$REPO_DIR/proto/.prototools" "$PROTO_DIR/.prototools"; then
+      ok "Symlink proto .prototools"
     else
-      fail "mise install (run 'mise install' manually to retry)"
+      fail "Symlink proto .prototools"
     fi
+    if command -v proto &>/dev/null; then
+      log "Installing tools listed in proto/.prototools (Python, Node, Java)..."
+      if proto install --yes; then
+        ok "proto tools installed"
+        log "Installed runtimes:"
+        proto list --installed | sed 's/^/  /' | tee -a "$LOG"
+      else
+        fail "proto install (run 'proto install' manually to retry)"
+      fi
+    else
+      fail "proto (command not found — was winget package installed?)"
+    fi
+  fi
+fi
+
+# ── mise config + tool install (macOS) ─────────────────────────────────────────
+if [[ "$OS_TYPE" == "macos" ]]; then
+  MISE_DIR="$HOME/.config/mise"
+  log "mise config..."
+  if $DRY_RUN; then
+    dry "link ~/.config/mise/config.toml -> $REPO_DIR/mise/config.toml"
+    dry "run 'mise install' to fetch Python, Node, Java"
   else
-    fail "mise (command not found — was brew bundle successful?)"
+    mkdir -p "$MISE_DIR"
+    if backup_and_link "$REPO_DIR/mise/config.toml" "$MISE_DIR/config.toml"; then
+      ok "Symlink mise config"
+    else
+      fail "Symlink mise config"
+    fi
+    if command -v mise &>/dev/null; then
+      log "Installing tools listed in mise/config.toml (Python, Node, Java)..."
+      if mise install --yes; then
+        ok "mise tools installed"
+        log "Installed runtimes:"
+        mise current | sed 's/^/  /' | tee -a "$LOG"
+      else
+        fail "mise install (run 'mise install' manually to retry)"
+      fi
+    else
+      fail "mise (command not found — was brew bundle successful?)"
+    fi
   fi
 fi
 

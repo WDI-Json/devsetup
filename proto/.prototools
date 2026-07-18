@@ -1,0 +1,6 @@
+# Proto polyglot runtime manager configuration for Windows
+# Pinned to latest LTS major versions; proto picks the newest patch.
+
+python = "3.14"
+node = "24"
+java = "temurin-21"
