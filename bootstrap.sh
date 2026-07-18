@@ -261,150 +261,172 @@ if [[ "$OS_TYPE" == "macos" ]] && ! $DRY_RUN; then
 fi
 
 # ── Xcode Command Line Tools ──────────────────────────────────────────────────
-log "Checking Xcode Command Line Tools..."
-if xcode-select -p &>/dev/null; then
-  ok "Xcode Command Line Tools (already installed)"
-elif $DRY_RUN; then
-  dry "install Xcode Command Line Tools"
-else
-  xcode-select --install
-  read -rp "Press Enter once the Xcode CLT installation is complete..."
+XCODE_CLT_OK=0
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "Checking Xcode Command Line Tools..."
   if xcode-select -p &>/dev/null; then
-    ok "Xcode Command Line Tools"
+    ok "Xcode Command Line Tools (already installed)"
+    XCODE_CLT_OK=1
+  elif $DRY_RUN; then
+    dry "install Xcode Command Line Tools"
+    XCODE_CLT_OK=1
   else
-    fail "Xcode Command Line Tools"
+    xcode-select --install
+    read -rp "Press Enter once the Xcode CLT installation is complete..."
+    if xcode-select -p &>/dev/null; then
+      ok "Xcode Command Line Tools"
+      XCODE_CLT_OK=1
+    else
+      fail "Xcode Command Line Tools"
+    fi
   fi
 fi
 
 # ── Homebrew ──────────────────────────────────────────────────────────────────
-log "Checking Homebrew..."
-if command -v brew &>/dev/null; then
-  ok "Homebrew (already installed)"
-elif $DRY_RUN; then
-  dry "install Homebrew"
-else
-  if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    ok "Homebrew"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
+  log "Checking Homebrew..."
+  if command -v brew &>/dev/null; then
+    ok "Homebrew (already installed)"
+  elif $DRY_RUN; then
+    dry "install Homebrew"
   else
-    fail "Homebrew — cannot continue without it"
-    exit 1
+    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+      ok "Homebrew"
+    else
+      fail "Homebrew — cannot continue without it"
+      BOOTSTRAP_FAILED=1
+    fi
   fi
+elif [[ "$OS_TYPE" == "macos" ]]; then
+  fail "Skipping Homebrew (Xcode CLT required)"
 fi
 
 # ── Brewfile ──────────────────────────────────────────────────────────────────
-log "Checking Brewfile packages..."
-if $DRY_RUN; then
-  missing=$(brew bundle check --file="$DOTFILES/Brewfile" 2>&1 | grep "is not installed" || true)
-  if [[ -n "$missing" ]]; then
-    echo "  Packages not yet installed:"
-    while IFS= read -r line; do
-      dry "$line"
-    done <<< "$missing"
-  else
-    echo "  All packages already installed"
-  fi
-else
-  brew_success=false
-  for attempt in 1 2 3; do
-    if brew bundle --file="$DOTFILES/Brewfile"; then
-      brew_success=true
-      break
-    fi
-    log "brew bundle attempt $attempt failed (likely network) — retrying in 10s..."
-    sleep 10
-  done
-
-  if $brew_success; then
-    ok "All Homebrew packages"
-  else
-    echo "" >> "$LOG"
-    echo "=== Homebrew packages still missing after 3 attempts ===" >> "$LOG"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]] && command -v brew &>/dev/null; then
+  log "Checking Brewfile packages..."
+  if $DRY_RUN; then
     missing=$(brew bundle check --file="$DOTFILES/Brewfile" 2>&1 | grep "is not installed" || true)
     if [[ -n "$missing" ]]; then
+      echo "  Packages not yet installed:"
       while IFS= read -r line; do
-        fail "brew: $line"
+        dry "$line"
       done <<< "$missing"
     else
-      fail "brew bundle (unknown error — run 'brew bundle' manually)"
+      echo "  All packages already installed"
     fi
-    echo "" >> "$LOG"
+  else
+    brew_success=false
+    for attempt in 1 2 3; do
+      if brew bundle --file="$DOTFILES/Brewfile"; then
+        brew_success=true
+        break
+      fi
+      log "brew bundle attempt $attempt failed (likely network) — retrying in 10s..."
+      sleep 10
+    done
+
+    if $brew_success; then
+      ok "All Homebrew packages"
+    else
+      echo "" >> "$LOG"
+      echo "=== Homebrew packages still missing after 3 attempts ===" >> "$LOG"
+      missing=$(brew bundle check --file="$DOTFILES/Brewfile" 2>&1 | grep "is not installed" || true)
+      if [[ -n "$missing" ]]; then
+        while IFS= read -r line; do
+          fail "brew: $line"
+        done <<< "$missing"
+      else
+        fail "brew bundle (unknown error — run 'brew bundle' manually)"
+      fi
+      echo "" >> "$LOG"
+    fi
   fi
 fi
 
 # ── oh-my-posh — trust binary (macOS Gatekeeper) ─────────────────────────────
-log "Trusting oh-my-posh binary..."
-if $DRY_RUN; then
-  dry "xattr -dr com.apple.quarantine \$(brew --prefix)/bin/oh-my-posh"
-elif command -v oh-my-posh &>/dev/null; then
-  xattr -dr com.apple.quarantine "$(brew --prefix)/bin/oh-my-posh" 2>/dev/null && ok "oh-my-posh trusted" || ok "oh-my-posh (no quarantine attribute)"
-else
-  fail "oh-my-posh not found — was brew bundle successful?"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
+  log "Trusting oh-my-posh binary..."
+  if $DRY_RUN; then
+    dry "xattr -dr com.apple.quarantine $(brew --prefix)/bin/oh-my-posh"
+  elif command -v oh-my-posh &>/dev/null; then
+    xattr -dr com.apple.quarantine "$(brew --prefix)/bin/oh-my-posh" 2>/dev/null && ok "oh-my-posh trusted" || ok "oh-my-posh (no quarantine attribute)"
+  else
+    fail "oh-my-posh (command not found — was brew bundle successful?)"
+  fi
 fi
 
 # ── Ollama — pull models ──────────────────────────────────────────────────────
-log "Pulling Ollama models..."
-if $DRY_RUN; then
-  dry "ollama pull qwen3:8b"
-  dry "ollama pull nomic-embed-text"
-elif command -v ollama &>/dev/null; then
-  _ollama_was_running=false
-  if pgrep -x ollama &>/dev/null; then
-    _ollama_was_running=true
-  else
-    ollama serve &>/dev/null &
-    _ollama_pid=$!
-    sleep 3
-  fi
-  for _model in qwen3:8b nomic-embed-text; do
-    if ollama pull "$_model"; then
-      ok "Ollama $_model"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
+  log "Pulling Ollama models..."
+  if $DRY_RUN; then
+    dry "ollama pull qwen3:8b"
+    dry "ollama pull nomic-embed-text"
+  elif command -v ollama &>/dev/null; then
+    _ollama_was_running=false
+    if pgrep -x ollama &>/dev/null; then
+      _ollama_was_running=true
     else
-      fail "ollama pull $_model"
+      ollama serve &>/dev/null &
+      _ollama_pid=$!
+      sleep 3
     fi
-  done
-  if ! $_ollama_was_running && [[ -n "${_ollama_pid:-}" ]]; then
-    kill "$_ollama_pid" 2>/dev/null || true
+    for _model in qwen3:8b nomic-embed-text; do
+      if ollama pull "$_model"; then
+        ok "Ollama $_model"
+      else
+        fail "ollama pull $_model"
+      fi
+    done
+    if ! $_ollama_was_running && [[ -n "${_ollama_pid:-}" ]]; then
+      kill "$_ollama_pid" 2>/dev/null || true
+    fi
+  else
+    fail "ollama not found — was brew bundle successful?"
   fi
-else
-  fail "ollama not found — was brew bundle successful?"
 fi
 
 # ── Rancher Desktop — docker on PATH ─────────────────────────────────────────
-log "Checking docker on PATH (Rancher Desktop)..."
-if command -v docker &>/dev/null; then
-  ok "docker is on PATH (Rancher Desktop driver available)"
-elif $DRY_RUN; then
-  dry "verify docker is on PATH — open Rancher Desktop and enable dockerd (moby) in Preferences → Container Engine"
-else
-  fail "docker not on PATH — open Rancher Desktop, enable dockerd (moby) in Preferences → Container Engine, then re-run"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
+  log "Checking docker on PATH (Rancher Desktop)..."
+  if command -v docker &>/dev/null; then
+    ok "docker is on PATH (Rancher Desktop driver available)"
+  elif $DRY_RUN; then
+    dry "verify docker is on PATH — open Rancher Desktop and enable dockerd (moby) in Preferences → Container Engine"
+  else
+    fail "docker not on PATH — open Rancher Desktop, enable dockerd (moby) in Preferences → Container Engine, then re-run"
+  fi
 fi
 
 # ── minikube default driver ───────────────────────────────────────────────────
-log "Checking minikube default driver..."
-if $DRY_RUN; then
-  dry "set minikube default driver to docker (minikube config set driver docker)"
-elif ! command -v minikube &>/dev/null; then
-  fail "minikube not found — was brew bundle successful?"
-else
-  current_driver=$(minikube config get driver 2>/dev/null || true)
-  if [[ "$current_driver" == "docker" ]]; then
-    ok "minikube default driver already set to docker (Rancher Desktop)"
-  elif minikube config set driver docker 2>/dev/null; then
-    ok "minikube default driver set to docker (Rancher Desktop)"
+if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
+  log "Checking minikube default driver..."
+  if $DRY_RUN; then
+    dry "set minikube default driver to docker (minikube config set driver docker)"
+  elif ! command -v minikube &>/dev/null; then
+    fail "minikube not found — was brew bundle successful?"
   else
-    fail "minikube config set driver docker"
+    current_driver=$(minikube config get driver 2>/dev/null || true)
+    if [[ "$current_driver" == "docker" ]]; then
+      ok "minikube default driver already set to docker (Rancher Desktop)"
+    elif minikube config set driver docker 2>/dev/null; then
+      ok "minikube default driver set to docker (Rancher Desktop)"
+    else
+      fail "minikube config set driver docker"
+    fi
   fi
 fi
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
-log "CascadiaMono fonts..."
-if $DRY_RUN; then
-  dry "copy CascadiaMono/*.ttf to ~/Library/Fonts/"
-elif cp "$REPO_DIR/CascadiaMono/"*.ttf "$HOME/Library/Fonts/" 2>/dev/null; then
-  ok "CascadiaMono fonts"
-else
-  fail "CascadiaMono fonts (copy failed)"
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "CascadiaMono fonts..."
+  if $DRY_RUN; then
+    dry "copy CascadiaMono/*.ttf to ~/Library/Fonts/"
+  elif cp "$REPO_DIR/CascadiaMono/"*.ttf "$HOME/Library/Fonts/" 2>/dev/null; then
+    ok "CascadiaMono fonts"
+  else
+    fail "CascadiaMono fonts (copy failed)"
+  fi
 fi
 
 # ── SSH key ───────────────────────────────────────────────────────────────────
@@ -418,8 +440,11 @@ else
     ok "SSH key generated"
     # Ensure ssh-agent picks up the new key (macOS Keychain)
     eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
-    ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" 2>/dev/null \
-      || ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+    if [[ "$OS_TYPE" == "macos" ]]; then
+      ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+    else
+      ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+    fi
 
     log "Add this SSH key to GitHub: https://github.com/settings/keys"
     cat "$HOME/.ssh/id_ed25519.pub"
@@ -555,46 +580,48 @@ else
 fi
 
 # ── macOS settings ────────────────────────────────────────────────────────────
-log "macOS settings..."
-if $DRY_RUN; then
-  dry "run scripts/macos.sh (defaults write for Dock, Finder, keyboard, etc.)"
-elif bash "$REPO_DIR/scripts/macos.sh" &>/dev/null; then
-  ok "macOS settings"
-else
-  fail "macOS settings (check scripts/macos.sh)"
-fi
-
-# ── CAPSLOCK → Escape (hidutil LaunchAgent) ───────────────────────────────────
-LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
-CAPSLOCK_PLIST="com.local.capslock-to-escape.plist"
-log "CAPSLOCK → Escape..."
-if $DRY_RUN; then
-  dry "link $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST -> $DOTFILES/$CAPSLOCK_PLIST"
-  dry "launchctl load $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"
-else
-  mkdir -p "$LAUNCH_AGENTS_DIR"
-  if backup_and_link "$DOTFILES/$CAPSLOCK_PLIST" "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"; then
-    ok "Symlink $CAPSLOCK_PLIST"
-    launchctl load "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST" 2>/dev/null \
-      && ok "LaunchAgent loaded (CAPSLOCK → Escape active)" \
-      || ok "LaunchAgent registered (active on next login)"
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "macOS settings..."
+  if $DRY_RUN; then
+    dry "run scripts/macos.sh (defaults write for Dock, Finder, keyboard, etc.)"
+  elif bash "$REPO_DIR/scripts/macos.sh" &>/dev/null; then
+    ok "macOS settings"
   else
-    fail "Symlink $CAPSLOCK_PLIST"
+    fail "macOS settings (check scripts/macos.sh)"
   fi
-fi
 
-# ── Dock ──────────────────────────────────────────────────────────────────────
-log "Dock..."
-if $DRY_RUN; then
-  dry "run scripts/dock.sh (configure Dock via dockutil)"
-elif command -v dockutil &>/dev/null; then
-  if bash "$REPO_DIR/scripts/dock.sh"; then
-    ok "Dock"
+  # ── CAPSLOCK → Escape (hidutil LaunchAgent) ───────────────────────────────────
+  LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+  CAPSLOCK_PLIST="com.local.capslock-to-escape.plist"
+  log "CAPSLOCK → Escape..."
+  if $DRY_RUN; then
+    dry "link $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST -> $DOTFILES/$CAPSLOCK_PLIST"
+    dry "launchctl load $LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"
   else
-    fail "Dock (check scripts/dock.sh)"
+    mkdir -p "$LAUNCH_AGENTS_DIR"
+    if backup_and_link "$DOTFILES/$CAPSLOCK_PLIST" "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST"; then
+      ok "Symlink $CAPSLOCK_PLIST"
+      launchctl load "$LAUNCH_AGENTS_DIR/$CAPSLOCK_PLIST" 2>/dev/null \
+        && ok "LaunchAgent loaded (CAPSLOCK → Escape active)" \
+        || ok "LaunchAgent registered (active on next login)"
+    else
+      fail "Symlink $CAPSLOCK_PLIST"
+    fi
   fi
-else
-  fail "Dock (dockutil not found — was brew bundle successful?)"
+
+  # ── Dock ──────────────────────────────────────────────────────────────────────
+  log "Dock..."
+  if $DRY_RUN; then
+    dry "run scripts/dock.sh (configure Dock via dockutil)"
+  elif command -v dockutil &>/dev/null; then
+    if bash "$REPO_DIR/scripts/dock.sh"; then
+      ok "Dock"
+    else
+      fail "Dock (check scripts/dock.sh)"
+    fi
+  else
+    fail "Dock (dockutil not found — was brew bundle successful?)"
+  fi
 fi
 
 # ── Repos ─────────────────────────────────────────────────────────────────────
