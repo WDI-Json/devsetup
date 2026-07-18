@@ -12,9 +12,12 @@ OS_TYPE=""
 DRY_RUN=false
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
 
+UNAME_S="$(uname -s 2>/dev/null || echo unknown)"
 if [[ "${OS:-}" == "Windows_NT" ]]; then
   OS_TYPE="windows"
-elif [[ "$(uname -s)" == "Darwin" ]]; then
+elif [[ "$UNAME_S" == MINGW* || "$UNAME_S" == MSYS* || "$UNAME_S" == CYGWIN* || "$UNAME_S" == Windows_NT* ]]; then
+  OS_TYPE="windows"
+elif [[ "$UNAME_S" == "Darwin" ]]; then
   OS_TYPE="macos"
 else
   OS_TYPE="unsupported"
