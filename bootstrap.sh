@@ -145,7 +145,7 @@ bootstrap_windows() {
   log "Detected Windows — using winget-based bootstrap"
   if ! command -v "$WINGET" &>/dev/null; then
     fail "winget not found. Install App Installer from Microsoft Store and re-run."
-    exit 1
+    return 1
   fi
   ok "winget available"
 
@@ -162,7 +162,7 @@ bootstrap_windows() {
   log "Installing winget packages from dotfiles/Wingetfile..."
   if [[ ! -f "$WINGET_FILE" ]]; then
     fail "Missing $WINGET_FILE"
-    exit 1
+    return 1
   elif $DRY_RUN; then
     while IFS= read -r pkg; do
       pkg="${pkg//$'\r'/}"
@@ -219,14 +219,14 @@ bootstrap_windows() {
     if [[ "$failure_count" -gt 0 ]]; then
       printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
       grep "^\[FAILED\]" "$LOG"
-      exit 1
+      return 1
     else
       printf '\e[1;32mWindows bootstrap completed successfully\e[0m\n'
-      exit 0
+      return 0
     fi
   else
     printf '\e[1;33mDry run complete — run without --dry-run to apply.\e[0m\n'
-    exit 0
+    return 0
   fi
 }
 
@@ -240,8 +240,9 @@ backup_and_link() {
 }
 
 # ── OS-specific routing ─────────────────────────────────────────────────────────
+BOOTSTRAP_FAILED=0
 if [[ "$OS_TYPE" == "windows" ]]; then
-  bootstrap_windows
+  bootstrap_windows || BOOTSTRAP_FAILED=$?
 elif [[ "$OS_TYPE" == "unsupported" ]]; then
   fail "Unsupported OS. This bootstrap currently supports macOS and Windows."
   exit 1
@@ -645,9 +646,10 @@ else
   echo "" >> "$LOG"
   failure_count=$(grep -c "^\[FAILED\]" "$LOG" 2>/dev/null || true)
   failure_count="${failure_count:-0}"
-  if [[ "$failure_count" -gt 0 ]]; then
-    printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$failure_count"
+  if [[ "$failure_count" -gt 0 ]] || [[ "$BOOTSTRAP_FAILED" -ne 0 ]]; then
+    printf '\e[1;31m%s failure(s) — see log.txt\e[0m\n' "$((failure_count + BOOTSTRAP_FAILED))"
     grep "^\[FAILED\]" "$LOG"
+    exit 1
   else
     printf '\e[1;32mAll steps completed successfully\e[0m\n'
   fi
