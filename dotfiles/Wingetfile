@@ -3,10 +3,11 @@ Git.Git
 GitHub.cli
 Microsoft.VisualStudioCode
 JanDeDobbeleer.OhMyPosh
+jdx.mise
 Neovim.Neovim
 SUSE.RancherDesktop
 Ollama.Ollama
-Wez.WezTerm
+wez.wezterm
 Microsoft.PowerToys
 
 # CLI parity
@@ -24,13 +25,11 @@ astral-sh.uv
 
 # Diagrams and docs
 Graphviz.Graphviz
-PlantUML.PlantUML
 
 # Kubernetes & containers parity
 Kubernetes.kubectl
 Derailed.k9s
 Kubernetes.minikube
-tilt-dev.Tilt
 
 # Media parity
 Gyan.FFmpeg

@@ -553,60 +553,42 @@ else
   fail "Symlink ~/.zshrc"
 fi
 
-# ── proto config + tool install (Windows) ─────────────────────────────────────
+# ── mise config + tool install (Windows) ─────────────────────────────────────
 if [[ "$OS_TYPE" == "windows" ]]; then
-  PROTO_DIR="$HOME/.proto"
-  log "proto config..."
+  MISE_DIR="$HOME/.config/mise"
+  log "mise config..."
   if $DRY_RUN; then
-    dry "link ~/.proto/.prototools -> $REPO_DIR/proto/.prototools"
-    dry "run 'proto install' to fetch Python, Node, Java"
+    dry "link ~/.config/mise/config.toml -> $REPO_DIR/mise/config.toml"
+    dry "run 'mise install' to fetch Python, Node, Java"
   else
-    mkdir -p "$PROTO_DIR"
-    if backup_and_link "$REPO_DIR/proto/.prototools" "$PROTO_DIR/.prototools"; then
-      ok "Symlink proto .prototools"
+    mkdir -p "$MISE_DIR"
+    if backup_and_link "$REPO_DIR/mise/config.toml" "$MISE_DIR/config.toml"; then
+      ok "Symlink mise config"
     else
-      fail "Symlink proto .prototools"
-    fi
-    
-    # Try to find proto: check PATH first, then common Windows installation locations
-    PROTO_CMD=""
-    if command -v proto &>/dev/null; then
-      PROTO_CMD="proto"
-    elif [[ -f "${USERPROFILE:-$HOME}/.proto/bin/proto.exe" ]]; then
-      PROTO_CMD="${USERPROFILE:-$HOME}/.proto/bin/proto.exe"
-    elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
-      PROTO_CMD="$HOME/.proto/bin/proto.exe"
+      fail "Symlink mise config"
     fi
 
-    # proto is not available on winget; install it via its official PowerShell script
-    if [[ -z "$PROTO_CMD" ]]; then
-      log "proto not found — installing via official installer..."
-      if powershell.exe -NoProfile -NonInteractive -Command "irm https://moonrepo.dev/install/proto.ps1 | iex" </dev/null; then
-        ok "proto installed"
-      else
-        fail "proto install (installer script failed)"
-      fi
-      # Re-detect after install
-      if command -v proto &>/dev/null; then
-        PROTO_CMD="proto"
-      elif [[ -f "${USERPROFILE:-$HOME}/.proto/bin/proto.exe" ]]; then
-        PROTO_CMD="${USERPROFILE:-$HOME}/.proto/bin/proto.exe"
-      elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
-        PROTO_CMD="$HOME/.proto/bin/proto.exe"
-      fi
+    # Find mise: check PATH first, then common winget installation locations
+    MISE_CMD=""
+    if command -v mise &>/dev/null; then
+      MISE_CMD="mise"
+    elif command -v mise.exe &>/dev/null; then
+      MISE_CMD="mise.exe"
+    elif [[ -f "${LOCALAPPDATA:-$HOME/AppData/Local}/Microsoft/WinGet/Links/mise.exe" ]]; then
+      MISE_CMD="${LOCALAPPDATA:-$HOME/AppData/Local}/Microsoft/WinGet/Links/mise.exe"
     fi
 
-    if [[ -n "$PROTO_CMD" ]]; then
-      log "Installing tools listed in proto/.prototools (Python, Node, Java)..."
-      if "$PROTO_CMD" install --yes; then
-        ok "proto tools installed"
+    if [[ -n "$MISE_CMD" ]]; then
+      log "Installing tools listed in mise/config.toml (Python, Node, Java)..."
+      if "$MISE_CMD" install --yes </dev/null; then
+        ok "mise tools installed"
         log "Installed runtimes:"
-        "$PROTO_CMD" list --installed | sed 's/^/  /' | tee -a "$LOG"
+        "$MISE_CMD" current </dev/null | sed 's/^/  /' | tee -a "$LOG"
       else
-        fail "proto install (run 'proto install' manually to retry)"
+        fail "mise install (run 'mise install' manually to retry)"
       fi
     else
-      log "proto (installation may still be pending — try: 'proto install' in a new shell)"
+      log "mise (installation may still be pending — try: 'mise install' in a new shell)"
     fi
   fi
 fi
