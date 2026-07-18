@@ -17,6 +17,8 @@ if [[ "${OS:-}" == "Windows_NT" ]]; then
   OS_TYPE="windows"
 elif [[ "$UNAME_S" == MINGW* || "$UNAME_S" == MSYS* || "$UNAME_S" == CYGWIN* ]]; then
   OS_TYPE="windows"
+elif [[ "$UNAME_S" == "Linux" ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+  OS_TYPE="windows"
 elif [[ "$UNAME_S" == "Darwin" ]]; then
   OS_TYPE="macos"
 else
