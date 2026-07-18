@@ -506,17 +506,28 @@ if [[ "$OS_TYPE" == "windows" ]]; then
     else
       fail "Symlink proto .prototools"
     fi
+    
+    # Try to find proto: check PATH first, then common Windows installation locations
+    PROTO_CMD=""
     if command -v proto &>/dev/null; then
+      PROTO_CMD="proto"
+    elif [[ -f "$USERPROFILE/.proto/bin/proto.exe" ]]; then
+      PROTO_CMD="$USERPROFILE/.proto/bin/proto.exe"
+    elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
+      PROTO_CMD="$HOME/.proto/bin/proto.exe"
+    fi
+    
+    if [[ -n "$PROTO_CMD" ]]; then
       log "Installing tools listed in proto/.prototools (Python, Node, Java)..."
-      if proto install --yes; then
+      if "$PROTO_CMD" install --yes; then
         ok "proto tools installed"
         log "Installed runtimes:"
-        proto list --installed | sed 's/^/  /' | tee -a "$LOG"
+        "$PROTO_CMD" list --installed | sed 's/^/  /' | tee -a "$LOG"
       else
         fail "proto install (run 'proto install' manually to retry)"
       fi
     else
-      fail "proto (command not found — was winget package installed?)"
+      log "proto (installation may still be pending — try: 'proto install' in a new shell)"
     fi
   fi
 fi
