@@ -15,14 +15,19 @@ DRY_RUN=false
 UNAME_S="$(uname -s 2>/dev/null || echo unknown)"
 if [[ "${OS:-}" == "Windows_NT" ]]; then
   OS_TYPE="windows"
+  WINGET="winget"
 elif [[ "$UNAME_S" == MINGW* || "$UNAME_S" == MSYS* || "$UNAME_S" == CYGWIN* ]]; then
   OS_TYPE="windows"
+  WINGET="winget"
 elif [[ "$UNAME_S" == "Linux" ]] && grep -qi microsoft /proc/version 2>/dev/null; then
   OS_TYPE="windows"
+  WINGET="winget.exe"
 elif [[ "$UNAME_S" == "Darwin" ]]; then
   OS_TYPE="macos"
+  WINGET=""
 else
   OS_TYPE="unsupported"
+  WINGET=""
 fi
 
 if $DRY_RUN; then
@@ -43,11 +48,11 @@ fail() {
 
 install_winget_pkg() {
   local pkg="$1"
-  if winget list --id "$pkg" --exact --accept-source-agreements &>/dev/null; then
+  if $WINGET list --id "$pkg" --exact --accept-source-agreements &>/dev/null; then
     ok "winget package already installed: $pkg"
     return 0
   fi
-  if winget install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+  if $WINGET install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
     ok "winget package installed: $pkg"
     return 0
   fi
@@ -84,7 +89,7 @@ wsl_has_ubuntu() {
 
 bootstrap_windows() {
   log "Detected Windows — using winget-based bootstrap"
-  if ! command -v winget &>/dev/null; then
+  if ! command -v "$WINGET" &>/dev/null; then
     fail "winget not found. Install App Installer from Microsoft Store and re-run."
     exit 1
   fi
@@ -150,11 +155,11 @@ bootstrap_windows() {
       ubuntu_installed=false
       # Try generic ID first, then explicit current LTS package ID as fallback.
       for ubuntu_pkg in "Canonical.Ubuntu" "Canonical.Ubuntu.2404"; do
-        if winget list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
+        if $WINGET list --id "$ubuntu_pkg" --exact --accept-source-agreements &>/dev/null; then
           ubuntu_installed=true
           ok "Ubuntu package already installed via winget ($ubuntu_pkg)"
           break
-        elif winget install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+        elif $WINGET install --id "$ubuntu_pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
           ubuntu_installed=true
           ok "Ubuntu package installed via winget ($ubuntu_pkg)"
           break
