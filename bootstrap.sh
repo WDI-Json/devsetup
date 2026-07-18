@@ -84,7 +84,8 @@ install_powershell_module() {
 }
 
 wsl_has_ubuntu() {
-  wsl.exe -l -q 2>/dev/null | tr -d '\r' | grep -Eiq '^Ubuntu($|-)'
+  # wsl.exe -l outputs UTF-16LE; strip null bytes as well as carriage returns.
+  wsl.exe -l -q 2>/dev/null | tr -d '\0\r' | grep -Eiq '^Ubuntu($|-)'
 }
 
 # Runs the WSL + Ubuntu installation. Intended to be called in a background
@@ -133,7 +134,7 @@ _wsl_setup() {
 
   if wsl_has_ubuntu; then
     ok "Ubuntu already registered in WSL"
-  elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG"; then
+  elif wsl.exe --install -d Ubuntu >/dev/null 2>>"$LOG" || wsl_has_ubuntu; then
     ok "Ubuntu registered in WSL"
   else
     fail "Ubuntu registration in WSL failed (restart may be required, then run: wsl --install -d Ubuntu)"
@@ -176,6 +177,15 @@ bootstrap_windows() {
     done < "$WINGET_FILE"
   fi
 
+  # Wait for WSL before using powershell.exe — wsl.exe activity can
+  # temporarily disrupt WSL interop if allowed to race with .exe calls.
+  if [[ -n "$wsl_pid" ]]; then
+    log "Windows Subsystem for Linux (WSL) + Ubuntu... [waiting]"
+    wait "$wsl_pid"
+    cat "$wsl_out"
+    wsl_pid=""
+  fi
+
   log "Installing PowerShell modules..."
   if $DRY_RUN; then
     dry "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
@@ -199,11 +209,6 @@ bootstrap_windows() {
     dry "wsl --install --no-distribution"
     dry "$WINGET install --id Canonical.Ubuntu --exact --accept-source-agreements --accept-package-agreements"
     dry "wsl --install -d Ubuntu"
-  else
-    # Wait for the background WSL job and replay its output inline.
-    log "Windows Subsystem for Linux (WSL) + Ubuntu... [waiting]"
-    wait "$wsl_pid"
-    cat "$wsl_out"
   fi
   rm -f "$wsl_out"
 
