@@ -413,8 +413,8 @@ if [[ "$OS_TYPE" == "windows" ]]; then
     OLLAMA_CMD="ollama"
   elif command -v ollama.exe &>/dev/null; then
     OLLAMA_CMD="ollama.exe"
-  elif [[ -f "$LOCALAPPDATA/Programs/Ollama/ollama.exe" ]]; then
-    OLLAMA_CMD="$LOCALAPPDATA/Programs/Ollama/ollama.exe"
+  elif [[ -f "${LOCALAPPDATA:-$HOME/AppData/Local}/Programs/Ollama/ollama.exe" ]]; then
+    OLLAMA_CMD="${LOCALAPPDATA:-$HOME/AppData/Local}/Programs/Ollama/ollama.exe"
   fi
 
   if $DRY_RUN; then
@@ -541,8 +541,8 @@ if [[ "$OS_TYPE" == "windows" ]]; then
     PROTO_CMD=""
     if command -v proto &>/dev/null; then
       PROTO_CMD="proto"
-    elif [[ -f "$USERPROFILE/.proto/bin/proto.exe" ]]; then
-      PROTO_CMD="$USERPROFILE/.proto/bin/proto.exe"
+    elif [[ -f "${USERPROFILE:-$HOME}/.proto/bin/proto.exe" ]]; then
+      PROTO_CMD="${USERPROFILE:-$HOME}/.proto/bin/proto.exe"
     elif [[ -f "$HOME/.proto/bin/proto.exe" ]]; then
       PROTO_CMD="$HOME/.proto/bin/proto.exe"
     fi
