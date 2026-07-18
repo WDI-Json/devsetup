@@ -9,6 +9,10 @@ LOG="$REPO_DIR/log.txt"
 WINGET_FILE="$DOTFILES/Wingetfile"
 OS_TYPE=""
 
+# Variables for interactive setup (initialized to empty, may be set by prompts)
+SSH_EMAIL=""
+MAC_HOSTNAME=""
+
 DRY_RUN=false
 [[ "${1:-}" == "--dry-run" ]] && DRY_RUN=true
 
@@ -430,39 +434,37 @@ if [[ "$OS_TYPE" == "macos" ]]; then
 fi
 
 # ── SSH key ───────────────────────────────────────────────────────────────────
-log "Checking SSH key..."
-if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
-  ok "SSH key (already exists)"
-elif $DRY_RUN; then
-  dry "generate SSH key ~/.ssh/id_ed25519 (ed25519)"
-else
-  if ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$HOME/.ssh/id_ed25519" -N ""; then
-    ok "SSH key generated"
-    # Ensure ssh-agent picks up the new key (macOS Keychain)
-    eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
-    if [[ "$OS_TYPE" == "macos" ]]; then
-      ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" 2>/dev/null || true
-    else
-      ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null || true
-    fi
-
-    log "Add this SSH key to GitHub: https://github.com/settings/keys"
-    cat "$HOME/.ssh/id_ed25519.pub"
-    while true; do
-      read -rp "Press Enter once the key is added to GitHub to verify (or Ctrl-C to skip)... "
-      ssh_output=$(ssh -T -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes \
-                       -i "$HOME/.ssh/id_ed25519" git@github.com 2>&1)
-      if echo "$ssh_output" | grep -q "successfully authenticated"; then
-        ok "SSH key verified with GitHub"
-        break
-      fi
-      echo ""
-      log "GitHub response was:"
-      echo "$ssh_output" | sed 's/^/    /'
-      log "Verify the key at https://github.com/settings/keys and try again."
-    done
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "Checking SSH key..."
+  if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
+    ok "SSH key (already exists)"
+  elif $DRY_RUN; then
+    dry "generate SSH key ~/.ssh/id_ed25519 (ed25519)"
   else
-    fail "SSH key generation"
+    if ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$HOME/.ssh/id_ed25519" -N ""; then
+      ok "SSH key generated"
+      # Ensure ssh-agent picks up the new key (macOS Keychain)
+      eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
+      ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+
+      log "Add this SSH key to GitHub: https://github.com/settings/keys"
+      cat "$HOME/.ssh/id_ed25519.pub"
+      while true; do
+        read -rp "Press Enter once the key is added to GitHub to verify (or Ctrl-C to skip)... "
+        ssh_output=$(ssh -T -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes \
+                         -i "$HOME/.ssh/id_ed25519" git@github.com 2>&1)
+        if echo "$ssh_output" | grep -q "successfully authenticated"; then
+          ok "SSH key verified with GitHub"
+          break
+        fi
+        echo ""
+        log "GitHub response was:"
+        echo "$ssh_output" | sed 's/^/    /'
+        log "Verify the key at https://github.com/settings/keys and try again."
+      done
+    else
+      fail "SSH key generation"
+    fi
   fi
 fi
 
