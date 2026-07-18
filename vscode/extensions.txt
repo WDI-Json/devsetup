@@ -1,6 +1,3 @@
-# AI
-anthropic.claude-code
-
 # Editor
 vscodevim.vim
 

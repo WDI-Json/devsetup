@@ -404,6 +404,36 @@ if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
   fi
 fi
 
+# ── Ollama — pull models (Windows) ────────────────────────────────────────────
+if [[ "$OS_TYPE" == "windows" ]]; then
+  log "Pulling Ollama models..."
+  # Find ollama: check PATH first, then common Windows installation location.
+  OLLAMA_CMD=""
+  if command -v ollama &>/dev/null; then
+    OLLAMA_CMD="ollama"
+  elif command -v ollama.exe &>/dev/null; then
+    OLLAMA_CMD="ollama.exe"
+  elif [[ -f "$LOCALAPPDATA/Programs/Ollama/ollama.exe" ]]; then
+    OLLAMA_CMD="$LOCALAPPDATA/Programs/Ollama/ollama.exe"
+  fi
+
+  if $DRY_RUN; then
+    dry "ollama pull qwen3:8b"
+    dry "ollama pull nomic-embed-text"
+  elif [[ -n "$OLLAMA_CMD" ]]; then
+    # On Windows the Ollama app runs its own background service, so we only pull.
+    for _model in qwen3:8b nomic-embed-text; do
+      if "$OLLAMA_CMD" pull "$_model"; then
+        ok "Ollama $_model"
+      else
+        fail "ollama pull $_model"
+      fi
+    done
+  else
+    log "ollama (installation may still be pending — try: 'ollama pull qwen3:8b' in a new shell)"
+  fi
+fi
+
 # ── Rancher Desktop — docker on PATH ─────────────────────────────────────────
 if [[ "$OS_TYPE" == "macos" ]] && [[ "$XCODE_CLT_OK" == "1" ]]; then
   log "Checking docker on PATH (Rancher Desktop)..."
