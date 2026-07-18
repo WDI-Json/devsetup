@@ -71,16 +71,31 @@ fail() {
   $DRY_RUN || echo "[FAILED] $*" >> "$LOG"
 }
 
+# Convert a Unix-style path to a Windows path so it can be passed to Windows
+# executables (powershell.exe, etc.). Works under WSL (wslpath) and Git Bash /
+# MSYS / Cygwin (cygpath); falls back to the original path otherwise.
+win_path() {
+  if command -v wslpath &>/dev/null; then
+    wslpath -w "$1"
+  elif command -v cygpath &>/dev/null; then
+    cygpath -w "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
 install_winget_pkg() {
   local pkg="$1"
   local src="${2:-}"
   local src_args=()
   [[ -n "$src" ]] && src_args=(--source "$src")
-  if $WINGET list --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements &>/dev/null; then
+  # Redirect stdin from /dev/null so winget can't consume the Wingetfile that
+  # the surrounding `while read` loop is streaming on stdin.
+  if $WINGET list --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements </dev/null &>/dev/null; then
     ok "winget package already installed: $pkg"
     return 0
   fi
-  if $WINGET install --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+  if $WINGET install --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements --accept-package-agreements </dev/null >/dev/null 2>>"$LOG"; then
     ok "winget package installed: $pkg"
     return 0
   fi
@@ -232,7 +247,7 @@ bootstrap_windows() {
   log "Windows settings..."
   if $DRY_RUN; then
     dry "run scripts/windows.ps1 (taskbar, Caps Lock, PowerToys Run hotkey)"
-  elif powershell.exe -NoProfile -NonInteractive -File "$REPO_DIR/scripts/windows.ps1" >>"$LOG" 2>&1; then
+  elif powershell.exe -NoProfile -NonInteractive -File "$(win_path "$REPO_DIR/scripts/windows.ps1")" >>"$LOG" 2>&1; then
     ok "Windows settings"
   else
     fail "Windows settings (check scripts/windows.ps1)"
@@ -671,9 +686,9 @@ if command -v "$CODE" &>/dev/null || $DRY_RUN; then
       dry "install extension: $ext"
     else
       printf "  %-50s" "$ext"
-      "$CODE" --install-extension "$ext" --force &>/dev/null || true
+      "$CODE" --install-extension "$ext" --force </dev/null &>/dev/null || true
       # Verify by re-listing; tolerant of code's non-zero exit under WSL interop.
-      if "$CODE" --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
+      if "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
            | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
         printf "ok\n"
         ok "VS Code extension: $ext"
