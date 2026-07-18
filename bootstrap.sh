@@ -37,7 +37,8 @@ fi
 # Set VS Code user config path based on OS
 case "$OS_TYPE" in
   windows)
-    VSCODE_USER="$APPDATA/Code/User"
+    # In WSL, APPDATA may not be set; fall back to home config
+    VSCODE_USER="${APPDATA:-$HOME/AppData/Roaming}/Code/User"
     ;;
   macos)
     VSCODE_USER="$HOME/Library/Application Support/Code/User"
