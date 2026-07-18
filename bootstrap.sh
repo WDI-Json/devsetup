@@ -73,7 +73,7 @@ install_powershell_module() {
     return 0
   fi
 
-  local install_cmd="Install-Module -Name \"$module\" -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+  local install_cmd="Install-Module -Name \"$module\" -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
   if powershell.exe -NoProfile -NonInteractive -Command "$install_cmd" >/dev/null 2>>"$LOG"; then
     ok "PowerShell module installed: $module"
     return 0
@@ -115,8 +115,8 @@ bootstrap_windows() {
 
   log "Installing PowerShell modules..."
   if $DRY_RUN; then
-    dry "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
-    dry "Install-Module -Name Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force -AllowClobber -AcceptLicense"
+    dry "Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
+    dry "Install-Module -Name Microsoft.WinGet.Client -Scope CurrentUser -Repository PSGallery -Force -AllowClobber"
   else
     install_powershell_module "Az"
     install_powershell_module "Microsoft.WinGet.Client"
