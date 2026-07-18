@@ -20,18 +20,25 @@ UNAME_S="$(uname -s 2>/dev/null || echo unknown)"
 if [[ "${OS:-}" == "Windows_NT" ]]; then
   OS_TYPE="windows"
   WINGET="winget"
+  CODE="code"
 elif [[ "$UNAME_S" == MINGW* || "$UNAME_S" == MSYS* || "$UNAME_S" == CYGWIN* ]]; then
   OS_TYPE="windows"
   WINGET="winget"
+  CODE="code"
 elif [[ "$UNAME_S" == "Linux" ]] && grep -qi microsoft /proc/version 2>/dev/null; then
   OS_TYPE="windows"
   WINGET="winget.exe"
+  # From WSL, target the Windows VS Code (code.exe) so extensions install into
+  # Windows, NOT into the WSL VS Code Server.
+  CODE="code.exe"
 elif [[ "$UNAME_S" == "Darwin" ]]; then
   OS_TYPE="macos"
   WINGET=""
+  CODE="code"
 else
   OS_TYPE="unsupported"
   WINGET=""
+  CODE="code"
 fi
 
 # Set VS Code user config path based on OS
@@ -66,11 +73,14 @@ fail() {
 
 install_winget_pkg() {
   local pkg="$1"
-  if $WINGET list --id "$pkg" --exact --accept-source-agreements &>/dev/null; then
+  local src="${2:-}"
+  local src_args=()
+  [[ -n "$src" ]] && src_args=(--source "$src")
+  if $WINGET list --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements &>/dev/null; then
     ok "winget package already installed: $pkg"
     return 0
   fi
-  if $WINGET install --id "$pkg" --exact --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
+  if $WINGET install --id "$pkg" --exact "${src_args[@]}" --accept-source-agreements --accept-package-agreements >/dev/null 2>>"$LOG"; then
     ok "winget package installed: $pkg"
     return 0
   fi
@@ -185,13 +195,19 @@ bootstrap_windows() {
     while IFS= read -r pkg; do
       pkg="${pkg//$'\r'/}"
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
-      dry "winget install --id $pkg --exact --accept-source-agreements --accept-package-agreements"
+      read -r pkg_id pkg_src <<< "$pkg"
+      if [[ -n "$pkg_src" ]]; then
+        dry "winget install --id $pkg_id --exact --source $pkg_src --accept-source-agreements --accept-package-agreements"
+      else
+        dry "winget install --id $pkg_id --exact --accept-source-agreements --accept-package-agreements"
+      fi
     done < "$WINGET_FILE"
   else
     while IFS= read -r pkg; do
       pkg="${pkg//$'\r'/}"
       [[ -z "$pkg" || "$pkg" == \#* ]] && continue
-      install_winget_pkg "$pkg"
+      read -r pkg_id pkg_src <<< "$pkg"
+      install_winget_pkg "$pkg_id" "$pkg_src"
     done < "$WINGET_FILE"
   fi
 
@@ -647,14 +663,18 @@ fi
 
 # ── VS Code extensions ────────────────────────────────────────────────────────
 log "VS Code extensions..."
-if command -v code &>/dev/null || $DRY_RUN; then
+if command -v "$CODE" &>/dev/null || $DRY_RUN; then
   while IFS= read -r ext; do
+    ext="${ext//$'\r'/}"
     [[ -z "$ext" || "$ext" == \#* ]] && continue
     if $DRY_RUN; then
       dry "install extension: $ext"
     else
       printf "  %-50s" "$ext"
-      if code --install-extension "$ext" --force &>/dev/null; then
+      "$CODE" --install-extension "$ext" --force &>/dev/null || true
+      # Verify by re-listing; tolerant of code's non-zero exit under WSL interop.
+      if "$CODE" --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
+           | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
         printf "ok\n"
         ok "VS Code extension: $ext"
       else
