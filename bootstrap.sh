@@ -84,6 +84,52 @@ win_path() {
   fi
 }
 
+# Locate the VS Code CLI when it is not (yet) on PATH. This commonly happens on
+# Windows right after winget installs VS Code: the new PATH entry only applies to
+# future shells, not the currently running one. The `bin` directory ships an
+# extension-less `code` shell script that works under Git Bash and WSL, so we
+# point $CODE at that when found. Returns 0 if $CODE is usable.
+resolve_code() {
+  command -v "$CODE" &>/dev/null && return 0
+  [[ "$OS_TYPE" != "windows" ]] && return 1
+
+  local to_unix=""
+  if command -v cygpath &>/dev/null; then
+    to_unix="cygpath -u"
+  elif command -v wslpath &>/dev/null; then
+    to_unix="wslpath -u"
+  fi
+
+  local candidates=() base converted env_base
+  for env_base in "${LOCALAPPDATA:-}" "${PROGRAMFILES:-}" "${ProgramW6432:-}" "$(printenv 'ProgramFiles(x86)' 2>/dev/null)"; do
+    [[ -z "$env_base" ]] && continue
+    base="$env_base"
+    if [[ -n "$to_unix" ]]; then
+      converted="$($to_unix "$env_base" 2>/dev/null)" && [[ -n "$converted" ]] && base="$converted"
+    fi
+    # LOCALAPPDATA hosts a user install under Programs/; Program Files hosts a
+    # system install directly.
+    candidates+=("$base/Programs/Microsoft VS Code/bin/code")
+    candidates+=("$base/Microsoft VS Code/bin/code")
+  done
+  candidates+=(
+    "$HOME/AppData/Local/Programs/Microsoft VS Code/bin/code"
+    "/c/Program Files/Microsoft VS Code/bin/code"
+    "/c/Program Files (x86)/Microsoft VS Code/bin/code"
+    "/mnt/c/Program Files/Microsoft VS Code/bin/code"
+    "/mnt/c/Program Files (x86)/Microsoft VS Code/bin/code"
+  )
+
+  local c
+  for c in "${candidates[@]}"; do
+    if [[ -f "$c" ]]; then
+      CODE="$c"
+      return 0
+    fi
+  done
+  return 1
+}
+
 install_winget_pkg() {
   local pkg="$1"
   local src="${2:-}"
@@ -678,7 +724,8 @@ fi
 
 # ── VS Code extensions ────────────────────────────────────────────────────────
 log "VS Code extensions..."
-if command -v "$CODE" &>/dev/null || $DRY_RUN; then
+$DRY_RUN || resolve_code || true
+if command -v "$CODE" &>/dev/null || [[ -f "$CODE" ]] || $DRY_RUN; then
   while IFS= read -r ext; do
     ext="${ext//$'\r'/}"
     [[ -z "$ext" || "$ext" == \#* ]] && continue
