@@ -725,12 +725,16 @@ fi
 # ── VS Code extensions ────────────────────────────────────────────────────────
 log "VS Code extensions..."
 $DRY_RUN || resolve_code || true
+# List installed VS Code extensions, lowercased and CR-stripped. Tolerant of
+# code's non-zero exit under WSL interop.
+code_list_extensions() {
+  "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r'
+}
 if command -v "$CODE" &>/dev/null || [[ -f "$CODE" ]] || $DRY_RUN; then
-  # Snapshot already-installed extensions once (lowercased) so we can skip ones
-  # that are already present instead of reinstalling on every run. Tolerant of
-  # code's non-zero exit under WSL interop.
+  # Snapshot already-installed extensions once so we can skip ones that are
+  # already present instead of reinstalling on every run.
   installed_exts=""
-  $DRY_RUN || installed_exts="$("$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r')"
+  $DRY_RUN || installed_exts="$(code_list_extensions)"
   while IFS= read -r ext; do
     ext="${ext//$'\r'/}"
     [[ -z "$ext" || "$ext" == \#* ]] && continue
@@ -743,9 +747,8 @@ if command -v "$CODE" &>/dev/null || [[ -f "$CODE" ]] || $DRY_RUN; then
     else
       printf "  %-50s" "$ext"
       "$CODE" --install-extension "$ext" --force </dev/null &>/dev/null || true
-      # Verify by re-listing; tolerant of code's non-zero exit under WSL interop.
-      if "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
-           | grep -qx "$ext_lc"; then
+      # Verify by re-listing.
+      if code_list_extensions | grep -qx "$ext_lc"; then
         printf "ok\n"
         ok "VS Code extension: $ext"
       else
