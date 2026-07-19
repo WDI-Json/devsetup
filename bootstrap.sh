@@ -84,6 +84,52 @@ win_path() {
   fi
 }
 
+# Locate the VS Code CLI when it is not (yet) on PATH. This commonly happens on
+# Windows right after winget installs VS Code: the new PATH entry only applies to
+# future shells, not the currently running one. The `bin` directory ships an
+# extension-less `code` shell script that works under Git Bash and WSL, so we
+# point $CODE at that when found. Returns 0 if $CODE is usable.
+resolve_code() {
+  command -v "$CODE" &>/dev/null && return 0
+  [[ "$OS_TYPE" != "windows" ]] && return 1
+
+  local to_unix=""
+  if command -v cygpath &>/dev/null; then
+    to_unix="cygpath -u"
+  elif command -v wslpath &>/dev/null; then
+    to_unix="wslpath -u"
+  fi
+
+  local candidates=() base converted env_base
+  for env_base in "${LOCALAPPDATA:-}" "${PROGRAMFILES:-}" "${ProgramW6432:-}" "$(printenv 'ProgramFiles(x86)' 2>/dev/null)"; do
+    [[ -z "$env_base" ]] && continue
+    base="$env_base"
+    if [[ -n "$to_unix" ]]; then
+      converted="$($to_unix "$env_base" 2>/dev/null)" && [[ -n "$converted" ]] && base="$converted"
+    fi
+    # LOCALAPPDATA hosts a user install under Programs/; Program Files hosts a
+    # system install directly.
+    candidates+=("$base/Programs/Microsoft VS Code/bin/code")
+    candidates+=("$base/Microsoft VS Code/bin/code")
+  done
+  candidates+=(
+    "$HOME/AppData/Local/Programs/Microsoft VS Code/bin/code"
+    "/c/Program Files/Microsoft VS Code/bin/code"
+    "/c/Program Files (x86)/Microsoft VS Code/bin/code"
+    "/mnt/c/Program Files/Microsoft VS Code/bin/code"
+    "/mnt/c/Program Files (x86)/Microsoft VS Code/bin/code"
+  )
+
+  local c
+  for c in "${candidates[@]}"; do
+    if [[ -f "$c" ]]; then
+      CODE="$c"
+      return 0
+    fi
+  done
+  return 1
+}
+
 install_winget_pkg() {
   local pkg="$1"
   local src="${2:-}"
@@ -543,14 +589,19 @@ if [[ "$OS_TYPE" == "macos" ]]; then
   fi
 fi
 
-# ── Dotfile symlinks ──────────────────────────────────────────────────────────
-log "Dotfile symlinks..."
-if $DRY_RUN; then
-  dry "link ~/.zshrc -> $DOTFILES/.zshrc"
-elif backup_and_link "$DOTFILES/.zshrc" "$HOME/.zshrc"; then
-  ok "Symlink ~/.zshrc"
-else
-  fail "Symlink ~/.zshrc"
+# ── Dotfile symlinks (macOS) ──────────────────────────────────────────────────
+# The .zshrc is zsh/Homebrew/macOS-specific (oh-my-posh init, /opt/homebrew,
+# ~/Library paths). On Windows the interactive shell is PowerShell + oh-my-posh
+# and bootstrap runs under Git Bash, so a ~/.zshrc symlink would never be used.
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "Dotfile symlinks..."
+  if $DRY_RUN; then
+    dry "link ~/.zshrc -> $DOTFILES/.zshrc"
+  elif backup_and_link "$DOTFILES/.zshrc" "$HOME/.zshrc"; then
+    ok "Symlink ~/.zshrc"
+  else
+    fail "Symlink ~/.zshrc"
+  fi
 fi
 
 # ── mise config + tool install (Windows) ─────────────────────────────────────
@@ -678,18 +729,31 @@ fi
 
 # ── VS Code extensions ────────────────────────────────────────────────────────
 log "VS Code extensions..."
-if command -v "$CODE" &>/dev/null || $DRY_RUN; then
+$DRY_RUN || resolve_code || true
+# List installed VS Code extensions, lowercased and CR-stripped. Tolerant of
+# code's non-zero exit under WSL interop.
+code_list_extensions() {
+  "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r'
+}
+if command -v "$CODE" &>/dev/null || [[ -f "$CODE" ]] || $DRY_RUN; then
+  # Snapshot already-installed extensions once so we can skip ones that are
+  # already present instead of reinstalling on every run.
+  installed_exts=""
+  $DRY_RUN || installed_exts="$(code_list_extensions)"
   while IFS= read -r ext; do
     ext="${ext//$'\r'/}"
     [[ -z "$ext" || "$ext" == \#* ]] && continue
+    ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
     if $DRY_RUN; then
       dry "install extension: $ext"
+    elif printf '%s\n' "$installed_exts" | grep -qx "$ext_lc"; then
+      printf "  %-50s already installed\n" "$ext"
+      ok "VS Code extension already installed: $ext"
     else
       printf "  %-50s" "$ext"
       "$CODE" --install-extension "$ext" --force </dev/null &>/dev/null || true
-      # Verify by re-listing; tolerant of code's non-zero exit under WSL interop.
-      if "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
-           | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
+      # Verify by re-listing.
+      if code_list_extensions | grep -qx "$ext_lc"; then
         printf "ok\n"
         ok "VS Code extension: $ext"
       else
@@ -763,28 +827,31 @@ fi
 # -> the vault so the familiar path works and pushes go to GitHub from one copy.
 # On a fresh machine iCloud may not be signed in / synced yet, so the vault won't
 # exist — in that case skip cleanly and link it later (re-run bootstrap once synced).
-WDI_NOTES_LINK="$HOME/GITHUB/wdi-notes"
-WDI_NOTES_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/WDI-Notes"
-log "WDI-Notes vault symlink..."
-if $DRY_RUN; then
-  if [[ -d "$WDI_NOTES_VAULT" ]]; then
-    dry "link $WDI_NOTES_LINK -> $WDI_NOTES_VAULT"
+# macOS-only: the vault path below is the macOS iCloud Drive location.
+if [[ "$OS_TYPE" == "macos" ]]; then
+  WDI_NOTES_LINK="$HOME/GITHUB/wdi-notes"
+  WDI_NOTES_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/WDI-Notes"
+  log "WDI-Notes vault symlink..."
+  if $DRY_RUN; then
+    if [[ -d "$WDI_NOTES_VAULT" ]]; then
+      dry "link $WDI_NOTES_LINK -> $WDI_NOTES_VAULT"
+    else
+      dry "skip — iCloud vault not present yet; link after iCloud syncs"
+    fi
+  elif [[ ! -d "$WDI_NOTES_VAULT" ]]; then
+    log "iCloud vault not found — sign in to iCloud, let Obsidian/iCloud sync, then re-run bootstrap (or link manually)"
+    ok "WDI-Notes vault symlink (skipped — iCloud not synced yet)"
+  elif [[ -L "$WDI_NOTES_LINK" ]]; then
+    ok "WDI-Notes vault symlink (already linked)"
+  elif [[ -e "$WDI_NOTES_LINK" ]]; then
+    fail "WDI-Notes: $WDI_NOTES_LINK exists and is not a symlink — remove that clone, then re-run (the vault is the source of truth)"
   else
-    dry "skip — iCloud vault not present yet; link after iCloud syncs"
-  fi
-elif [[ ! -d "$WDI_NOTES_VAULT" ]]; then
-  log "iCloud vault not found — sign in to iCloud, let Obsidian/iCloud sync, then re-run bootstrap (or link manually)"
-  ok "WDI-Notes vault symlink (skipped — iCloud not synced yet)"
-elif [[ -L "$WDI_NOTES_LINK" ]]; then
-  ok "WDI-Notes vault symlink (already linked)"
-elif [[ -e "$WDI_NOTES_LINK" ]]; then
-  fail "WDI-Notes: $WDI_NOTES_LINK exists and is not a symlink — remove that clone, then re-run (the vault is the source of truth)"
-else
-  mkdir -p "$HOME/GITHUB"
-  if ln -s "$WDI_NOTES_VAULT" "$WDI_NOTES_LINK"; then
-    ok "WDI-Notes vault symlink"
-  else
-    fail "WDI-Notes vault symlink"
+    mkdir -p "$HOME/GITHUB"
+    if ln -s "$WDI_NOTES_VAULT" "$WDI_NOTES_LINK"; then
+      ok "WDI-Notes vault symlink"
+    else
+      fail "WDI-Notes vault symlink"
+    fi
   fi
 fi
 

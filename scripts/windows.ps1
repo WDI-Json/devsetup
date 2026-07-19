@@ -27,8 +27,16 @@ function Read-JsonFile {
 }
 
 # Taskbar left alignment (Windows 11)
-New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Force | Out-Null
-New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -PropertyType DWord -Value 0 -Force | Out-Null
+# Note: the Explorer\Advanced key already exists on every Windows install and
+# contains many subkeys. Using `New-Item -Force` here would attempt to delete
+# and recreate the key, which fails with an UnauthorizedAccessException on the
+# protected subkeys. Only create the key if it is somehow missing, then set the
+# value with Set-ItemProperty (which creates the value if absent).
+$advancedPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+if (-not (Test-Path $advancedPath)) {
+  New-Item -Path $advancedPath -Force | Out-Null
+}
+Set-ItemProperty -Path $advancedPath -Name "TaskbarAl" -Type DWord -Value 0
 
 # Taskbar on the left side (vertical) where supported (Windows 10)
 $stuckRectsPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3"

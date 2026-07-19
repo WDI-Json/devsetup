@@ -73,12 +73,19 @@ The script auto-detects your OS:
 
 ### Windows flow
 
+Run from a Bash shell (e.g. Git Bash). Every phase checks current state first and skips work that is already done, so the script is safe to re-run.
+
 1. Check `winget` availability
-2. Install packages listed in `dotfiles/Wingetfile`
-3. Install PowerShell modules: `Az` and `Microsoft.WinGet.Client`
-4. Apply Windows settings (taskbar left, Caps Lock → Escape, PowerToys Run hotkey `Win+Space`)
-5. Enable/install WSL where needed
-6. Install Ubuntu (via winget) and attempt WSL Ubuntu registration
+2. Enable/install WSL and install Ubuntu (skipped if Ubuntu is already registered) — runs in the background in parallel with the winget installs
+3. Install packages listed in `dotfiles/Wingetfile` (each package is skipped if already installed)
+4. Install PowerShell modules: `Az` and `Microsoft.WinGet.Client` (skipped if already present)
+5. Apply Windows settings (taskbar left, Caps Lock → Escape, PowerToys Run hotkey `Win+Space`)
+6. Pull Ollama models (`qwen3:8b`, `nomic-embed-text`)
+7. Symlink `~/.config/mise/config.toml`, `~/.config/nvim`, WezTerm and VS Code configs (no `~/.zshrc` — that is macOS-only)
+8. Install language runtimes with `mise install` from `mise/config.toml` (Python, Node, Java — already-installed versions are skipped)
+9. Install VS Code extensions from `vscode/extensions.txt` (extensions already installed are skipped)
+
+> Re-running is safe on both platforms: already-installed packages, existing symlinks, and already-configured settings are detected and skipped.
 
 ## Symlinks
 
@@ -89,10 +96,14 @@ Changes to dotfiles in this repo take effect immediately since the live config f
 | macOS | `~/.zshrc` | `dotfiles/.zshrc` |
 | macOS | `~/Library/Application Support/Code/User/settings.json` | `vscode/settings.json` |
 | macOS | `~/Library/Application Support/Code/User/keybindings.json` | `vscode/keybindings.json` |
-| macOS | `~/.config/nvim` | `neovim/` |
-| macOS | `~/.wezterm.lua` | `wezterm/wezterm.lua` |
-| macOS | `~/.config/mise/config.toml` | `mise/config.toml` |
+| Windows | `%APPDATA%\Code\User\settings.json` | `vscode/settings.json` |
+| Windows | `%APPDATA%\Code\User\keybindings.json` | `vscode/keybindings.json` |
+| macOS/Windows | `~/.config/nvim` | `neovim/` |
+| macOS/Windows | `~/.wezterm.lua` | `wezterm/wezterm.lua` |
+| macOS/Windows | `~/.config/mise/config.toml` | `mise/config.toml` |
 | macOS/Windows | `.git/hooks/commit-msg` | `hooks/commit-msg` |
+
+> `~/.zshrc` is macOS-only: it is zsh/Homebrew-specific, and on Windows the interactive shell is PowerShell + oh-my-posh. The WDI-Notes iCloud/Obsidian vault symlink is also macOS-only (macOS iCloud Drive path).
 
 ## Commit convention
 
