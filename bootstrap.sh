@@ -726,17 +726,26 @@ fi
 log "VS Code extensions..."
 $DRY_RUN || resolve_code || true
 if command -v "$CODE" &>/dev/null || [[ -f "$CODE" ]] || $DRY_RUN; then
+  # Snapshot already-installed extensions once (lowercased) so we can skip ones
+  # that are already present instead of reinstalling on every run. Tolerant of
+  # code's non-zero exit under WSL interop.
+  installed_exts=""
+  $DRY_RUN || installed_exts="$("$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r')"
   while IFS= read -r ext; do
     ext="${ext//$'\r'/}"
     [[ -z "$ext" || "$ext" == \#* ]] && continue
+    ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
     if $DRY_RUN; then
       dry "install extension: $ext"
+    elif printf '%s\n' "$installed_exts" | grep -qx "$ext_lc"; then
+      printf "  %-50s already installed\n" "$ext"
+      ok "VS Code extension already installed: $ext"
     else
       printf "  %-50s" "$ext"
       "$CODE" --install-extension "$ext" --force </dev/null &>/dev/null || true
       # Verify by re-listing; tolerant of code's non-zero exit under WSL interop.
       if "$CODE" --list-extensions </dev/null 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d '\r' \
-           | grep -qx "$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"; then
+           | grep -qx "$ext_lc"; then
         printf "ok\n"
         ok "VS Code extension: $ext"
       else
