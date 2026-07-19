@@ -84,6 +84,27 @@ win_path() {
   fi
 }
 
+# Convert a Windows path (e.g. "C:\Users\me\AppData\Local") to a Unix-style path
+# ("/c/Users/me/AppData/Local"). Prefers cygpath/wslpath when available, but also
+# handles plain Git Bash where neither exists by rewriting the drive letter and
+# flipping backslashes. Falls back to the original path otherwise.
+unix_path() {
+  local p="$1"
+  if command -v cygpath &>/dev/null; then
+    cygpath -u "$p" 2>/dev/null && return 0
+  elif command -v wslpath &>/dev/null; then
+    wslpath -u "$p" 2>/dev/null && return 0
+  fi
+  # Manual fallback: "C:\dir\sub" -> "/c/dir/sub".
+  if [[ "$p" =~ ^([A-Za-z]):[\\/](.*)$ ]]; then
+    local drive="${BASH_REMATCH[1]}" rest="${BASH_REMATCH[2]}"
+    drive="$(printf '%s' "$drive" | tr '[:upper:]' '[:lower:]')"
+    printf '/%s/%s' "$drive" "${rest//\\//}"
+  else
+    printf '%s' "${p//\\//}"
+  fi
+}
+
 # Locate the VS Code CLI when it is not (yet) on PATH. This commonly happens on
 # Windows right after winget installs VS Code: the new PATH entry only applies to
 # future shells, not the currently running one. The `bin` directory ships an
@@ -93,20 +114,13 @@ resolve_code() {
   command -v "$CODE" &>/dev/null && return 0
   [[ "$OS_TYPE" != "windows" ]] && return 1
 
-  local to_unix=""
-  if command -v cygpath &>/dev/null; then
-    to_unix="cygpath -u"
-  elif command -v wslpath &>/dev/null; then
-    to_unix="wslpath -u"
-  fi
-
-  local candidates=() base converted env_base
+  local candidates=() base env_base
   for env_base in "${LOCALAPPDATA:-}" "${PROGRAMFILES:-}" "${ProgramW6432:-}" "$(printenv 'ProgramFiles(x86)' 2>/dev/null)"; do
     [[ -z "$env_base" ]] && continue
-    base="$env_base"
-    if [[ -n "$to_unix" ]]; then
-      converted="$($to_unix "$env_base" 2>/dev/null)" && [[ -n "$converted" ]] && base="$converted"
-    fi
+    # unix_path handles cygpath/wslpath when present and falls back to a manual
+    # drive-letter rewrite under plain Git Bash (where neither tool exists).
+    base="$(unix_path "$env_base")"
+    [[ -z "$base" ]] && base="$env_base"
     # LOCALAPPDATA hosts a user install under Programs/; Program Files hosts a
     # system install directly.
     candidates+=("$base/Programs/Microsoft VS Code/bin/code")
