@@ -589,14 +589,19 @@ if [[ "$OS_TYPE" == "macos" ]]; then
   fi
 fi
 
-# ── Dotfile symlinks ──────────────────────────────────────────────────────────
-log "Dotfile symlinks..."
-if $DRY_RUN; then
-  dry "link ~/.zshrc -> $DOTFILES/.zshrc"
-elif backup_and_link "$DOTFILES/.zshrc" "$HOME/.zshrc"; then
-  ok "Symlink ~/.zshrc"
-else
-  fail "Symlink ~/.zshrc"
+# ── Dotfile symlinks (macOS) ──────────────────────────────────────────────────
+# The .zshrc is zsh/Homebrew/macOS-specific (oh-my-posh init, /opt/homebrew,
+# ~/Library paths). On Windows the interactive shell is PowerShell + oh-my-posh
+# and bootstrap runs under Git Bash, so a ~/.zshrc symlink would never be used.
+if [[ "$OS_TYPE" == "macos" ]]; then
+  log "Dotfile symlinks..."
+  if $DRY_RUN; then
+    dry "link ~/.zshrc -> $DOTFILES/.zshrc"
+  elif backup_and_link "$DOTFILES/.zshrc" "$HOME/.zshrc"; then
+    ok "Symlink ~/.zshrc"
+  else
+    fail "Symlink ~/.zshrc"
+  fi
 fi
 
 # ── mise config + tool install (Windows) ─────────────────────────────────────
@@ -822,28 +827,31 @@ fi
 # -> the vault so the familiar path works and pushes go to GitHub from one copy.
 # On a fresh machine iCloud may not be signed in / synced yet, so the vault won't
 # exist — in that case skip cleanly and link it later (re-run bootstrap once synced).
-WDI_NOTES_LINK="$HOME/GITHUB/wdi-notes"
-WDI_NOTES_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/WDI-Notes"
-log "WDI-Notes vault symlink..."
-if $DRY_RUN; then
-  if [[ -d "$WDI_NOTES_VAULT" ]]; then
-    dry "link $WDI_NOTES_LINK -> $WDI_NOTES_VAULT"
+# macOS-only: the vault path below is the macOS iCloud Drive location.
+if [[ "$OS_TYPE" == "macos" ]]; then
+  WDI_NOTES_LINK="$HOME/GITHUB/wdi-notes"
+  WDI_NOTES_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/WDI-Notes"
+  log "WDI-Notes vault symlink..."
+  if $DRY_RUN; then
+    if [[ -d "$WDI_NOTES_VAULT" ]]; then
+      dry "link $WDI_NOTES_LINK -> $WDI_NOTES_VAULT"
+    else
+      dry "skip — iCloud vault not present yet; link after iCloud syncs"
+    fi
+  elif [[ ! -d "$WDI_NOTES_VAULT" ]]; then
+    log "iCloud vault not found — sign in to iCloud, let Obsidian/iCloud sync, then re-run bootstrap (or link manually)"
+    ok "WDI-Notes vault symlink (skipped — iCloud not synced yet)"
+  elif [[ -L "$WDI_NOTES_LINK" ]]; then
+    ok "WDI-Notes vault symlink (already linked)"
+  elif [[ -e "$WDI_NOTES_LINK" ]]; then
+    fail "WDI-Notes: $WDI_NOTES_LINK exists and is not a symlink — remove that clone, then re-run (the vault is the source of truth)"
   else
-    dry "skip — iCloud vault not present yet; link after iCloud syncs"
-  fi
-elif [[ ! -d "$WDI_NOTES_VAULT" ]]; then
-  log "iCloud vault not found — sign in to iCloud, let Obsidian/iCloud sync, then re-run bootstrap (or link manually)"
-  ok "WDI-Notes vault symlink (skipped — iCloud not synced yet)"
-elif [[ -L "$WDI_NOTES_LINK" ]]; then
-  ok "WDI-Notes vault symlink (already linked)"
-elif [[ -e "$WDI_NOTES_LINK" ]]; then
-  fail "WDI-Notes: $WDI_NOTES_LINK exists and is not a symlink — remove that clone, then re-run (the vault is the source of truth)"
-else
-  mkdir -p "$HOME/GITHUB"
-  if ln -s "$WDI_NOTES_VAULT" "$WDI_NOTES_LINK"; then
-    ok "WDI-Notes vault symlink"
-  else
-    fail "WDI-Notes vault symlink"
+    mkdir -p "$HOME/GITHUB"
+    if ln -s "$WDI_NOTES_VAULT" "$WDI_NOTES_LINK"; then
+      ok "WDI-Notes vault symlink"
+    else
+      fail "WDI-Notes vault symlink"
+    fi
   fi
 fi
 
