@@ -641,6 +641,15 @@ if [[ "$OS_TYPE" == "windows" ]]; then
       MISE_CMD="mise.exe"
     elif [[ -f "${LOCALAPPDATA:-$HOME/AppData/Local}/Microsoft/WinGet/Links/mise.exe" ]]; then
       MISE_CMD="${LOCALAPPDATA:-$HOME/AppData/Local}/Microsoft/WinGet/Links/mise.exe"
+    else
+      # Some winget setups expose mise only in the package directory and not
+      # via the WinGet/Links shim yet.
+      for _mise_candidate in "${LOCALAPPDATA:-$HOME/AppData/Local}/Microsoft/WinGet/Packages"/jdx.mise_*/mise/bin/mise.exe; do
+        if [[ -f "$_mise_candidate" ]]; then
+          MISE_CMD="$_mise_candidate"
+          break
+        fi
+      done
     fi
 
     if [[ -n "$MISE_CMD" ]]; then
