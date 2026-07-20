@@ -81,7 +81,7 @@ Run from a Bash shell (e.g. Git Bash). Every phase checks current state first an
 4. Install PowerShell modules: `Az` and `Microsoft.WinGet.Client` (skipped if already present)
 5. Apply Windows settings (taskbar left, Caps Lock → Escape, PowerToys Run hotkey `Win+Space`)
 6. Pull Ollama models (`qwen3:8b`, `nomic-embed-text`)
-7. Symlink `~/.config/mise/config.toml`, `~/.config/nvim`, WezTerm and VS Code configs (no `~/.zshrc` — that is macOS-only)
+7. Symlink `~/.config/mise/config.toml`, Neovim config (`%LOCALAPPDATA%\\nvim` and `~/.config/nvim` for XDG-compatible shells), WezTerm and VS Code configs (no `~/.zshrc` — that is macOS-only)
 8. Install language runtimes with `mise install` from `mise/config.toml` (Python, Node, Java — already-installed versions are skipped)
 9. Install VS Code extensions from `vscode/extensions.txt` (extensions already installed are skipped)
 
@@ -98,7 +98,8 @@ Changes to dotfiles in this repo take effect immediately since the live config f
 | macOS | `~/Library/Application Support/Code/User/keybindings.json` | `vscode/keybindings.json` |
 | Windows | `%APPDATA%\Code\User\settings.json` | `vscode/settings.json` |
 | Windows | `%APPDATA%\Code\User\keybindings.json` | `vscode/keybindings.json` |
-| macOS/Windows | `~/.config/nvim` | `neovim/` |
+| macOS | `~/.config/nvim` | `neovim/` |
+| Windows | `%LOCALAPPDATA%\\nvim` (plus `~/.config/nvim` for XDG-compatible shells) | `neovim/` |
 | macOS/Windows | `~/.wezterm.lua` | `wezterm/wezterm.lua` |
 | macOS/Windows | `~/.config/mise/config.toml` | `mise/config.toml` |
 | macOS/Windows | `.git/hooks/commit-msg` | `hooks/commit-msg` |

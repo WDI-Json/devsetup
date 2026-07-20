@@ -690,13 +690,35 @@ fi
 # ── Neovim config symlink ─────────────────────────────────────────────────────
 log "Neovim config..."
 if $DRY_RUN; then
-  dry "link ~/.config/nvim -> $REPO_DIR/neovim"
-else
-  mkdir -p "$HOME/.config"
-  if backup_and_link "$REPO_DIR/neovim" "$HOME/.config/nvim"; then
-    ok "Symlink ~/.config/nvim"
+  if [[ "$OS_TYPE" == "windows" ]]; then
+    NVIM_WIN_DIR="${LOCALAPPDATA:-$HOME/AppData/Local}/nvim"
+    dry "link $NVIM_WIN_DIR -> $REPO_DIR/neovim"
+    dry "link ~/.config/nvim -> $REPO_DIR/neovim (XDG-compatible shells)"
   else
-    fail "Symlink ~/.config/nvim"
+    dry "link ~/.config/nvim -> $REPO_DIR/neovim"
+  fi
+else
+  if [[ "$OS_TYPE" == "windows" ]]; then
+    NVIM_WIN_DIR="${LOCALAPPDATA:-$HOME/AppData/Local}/nvim"
+    if backup_and_link "$REPO_DIR/neovim" "$NVIM_WIN_DIR"; then
+      ok "Symlink $NVIM_WIN_DIR"
+    else
+      fail "Symlink $NVIM_WIN_DIR"
+    fi
+
+    mkdir -p "$HOME/.config"
+    if backup_and_link "$REPO_DIR/neovim" "$HOME/.config/nvim"; then
+      ok "Symlink ~/.config/nvim"
+    else
+      fail "Symlink ~/.config/nvim"
+    fi
+  else
+    mkdir -p "$HOME/.config"
+    if backup_and_link "$REPO_DIR/neovim" "$HOME/.config/nvim"; then
+      ok "Symlink ~/.config/nvim"
+    else
+      fail "Symlink ~/.config/nvim"
+    fi
   fi
 fi
 
