@@ -4,6 +4,8 @@ Reproducible setup for a software/data engineering environment on macOS and Wind
 
 ## Quick Start
 
+**macOS:**
+
 ```bash
 git clone git@github.com:WDI-Json/devsetup.git ~/GITHUB/devsetup
 cd ~/GITHUB/devsetup
@@ -11,9 +13,26 @@ bash bootstrap.sh --dry-run   # controleer eerst wat er gaat gebeuren
 bash bootstrap.sh             # daarna zonder --dry-run echt uitvoeren
 ```
 
-> macOS: installeer Xcode CLT wanneer daarom gevraagd wordt en wacht tot dat klaar is voordat het script verdergaat.
->
-> Windows: run het script vanuit een Bash-shell (bijv. Git Bash), en zorg dat Git Bash eerst geïnstalleerd is. `bootstrap.sh` gebruikt automatisch `winget` en probeert ook WSL + Ubuntu te installeren.
+> installeer Xcode CLT wanneer daarom gevraagd wordt en wacht tot dat klaar is voordat het script verdergaat.
+
+**Windows (fresh machine):**
+
+`bootstrap.sh` vereist een Bash-shell. Op een vers Windows-systeem is Git Bash nog niet aanwezig, dus volg deze stappen:
+
+1. Open **PowerShell** of **CMD** en installeer Git for Windows:
+   ```powershell
+   winget install Git.Git
+   ```
+2. Open **een nieuw venster**: zoek in het Startmenu naar **Git Bash** en open het. Blijf niet in PowerShell — die heeft geen `bash`.
+3. Kloon de repo en voer het script uit vanuit Git Bash:
+   ```bash
+   git clone git@github.com:WDI-Json/devsetup.git ~/GITHUB/devsetup
+   cd ~/GITHUB/devsetup
+   bash bootstrap.sh --dry-run   # controleer eerst wat er gaat gebeuren
+   bash bootstrap.sh             # daarna zonder --dry-run echt uitvoeren
+   ```
+
+> `bootstrap.sh` gebruikt automatisch `winget` en probeert ook WSL + Ubuntu te installeren.
 
 Na afloop staat in `log.txt` welke stappen geslaagd of mislukt zijn (inclusief Windows package-installatiestatus).
 
